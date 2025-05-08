@@ -25,6 +25,19 @@ return function(Theme)
 	MainFrame.Parent = ScreenGui
 	Instance.new("UICorner", MainFrame).CornerRadius = Theme.CornerRadius
 
+	-- Animated Drag Handle Below UI
+	local FloatingHandle = Instance.new("TextButton")
+	FloatingHandle.Size = UDim2.new(0, 120, 0, 6)
+	FloatingHandle.Position = UDim2.new(0.5, -60, 0.5, 250) -- Below the UI
+	FloatingHandle.AnchorPoint = Vector2.new(0.5, 0.5)
+	FloatingHandle.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+	FloatingHandle.BackgroundTransparency = 0.4
+	FloatingHandle.Text = ""
+	FloatingHandle.AutoButtonColor = false
+	FloatingHandle.ZIndex = 3
+	FloatingHandle.Parent = ScreenGui
+	Instance.new("UICorner", FloatingHandle).CornerRadius = UDim.new(1, 0)
+
 	-- Create TabBar and ContentArea
 	local TabBar = Instance.new("Frame")
 	TabBar.Name = "TabBar"
@@ -212,13 +225,55 @@ local function makeDraggable(targetFrame, handle)
 	end)
 end
 
-makeDraggable(MainFrame, Topbar)
+makeDraggable(MainFrame, TopbarButton)
 makeDraggable(MainFrame, DragHandleTop)
 makeDraggable(MainFrame, DragHandleBottom)
 
+local dragging = false
+local dragStart, startPos
+
+FloatingHandle.InputBegan:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseButton1 then
+		dragging = true
+		dragStart = input.Position
+		startPos = MainFrame.Position
+	end
+end)
+
+UserInputService.InputEnded:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseButton1 then
+		dragging = false
+	end
+end)
+
+RunService = game:GetService("RunService")
+RunService.RenderStepped:Connect(function()
+	if dragging and dragStart and startPos then
+		local delta = UserInputService:GetMouseLocation() - dragStart
+		local newPos = UDim2.new(
+			startPos.X.Scale, startPos.X.Offset + delta.X,
+			startPos.Y.Scale, startPos.Y.Offset + delta.Y
+		)
+		-- Animate UI to follow bar
+		TweenService:Create(MainFrame, TweenInfo.new(0.25, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+			Position = newPos
+		}):Play()
+		-- Snap bar to stay under frame
+		FloatingHandle.Position = UDim2.new(0.5, -60, 0, MainFrame.AbsolutePosition.Y + MainFrame.AbsoluteSize.Y + 10)
+	end
+end)
+
+local CurrentTab = nil
+	
 -- Tab highlighting
 local currentSelectedBtn = nil
 local function switchTab(tabModule, btn)
+	if currentSelectedBtn == btn then return end
+	if not ContentArea or not ContentArea:IsDescendantOf(ScreenGui) then
+		warn("❌ ContentArea missing. Cannot load tab.")
+		return
+	end
+
 	if CurrentTab then
 		TweenService:Create(CurrentTab, TweenInfo.new(0.2), { BackgroundTransparency = 1 }):Play()
 		task.delay(0.2, function()
@@ -286,11 +341,17 @@ for _, tabInfo in ipairs(tabs) do
 end
 
 task.delay(0.35, function()
-	local firstTabButton = TabBar:FindFirstChildWhichIsA("TextButton")
-	if firstTabButton then
-		switchTab("UI/Tabs/Home/HomeTab", firstTabButton)
+	local firstTab
+	for _, child in ipairs(TabBar:GetChildren()) do
+		if child:IsA("TextButton") and child.Text == "Home" then
+			firstTab = child
+			break
+		end
+	end
+	if firstTab then
+		switchTab("UI/Tabs/Home/HomeTab", firstTab)
 	else
-		warn("❌ Couldn't find any tab button inside TabBar!")
+		warn("❌ Couldn't find 'Home' tab to set as default.")
 	end
 end)
 
@@ -301,7 +362,10 @@ MinBtn.MouseButton1Click:Connect(function()
 		Position = MainFrame.Position + UDim2.new(0, 0, 0.46, 0)
 	}):Play()
 	ContentArea.Visible = false
+	FloatingHandle.Visible = false
+	ContentArea.Active = false
 	TabBar.Visible = false
+	TabBar.Active = false
 	DragHandleTop.Visible = false
 	DragHandleBottom.Visible = false
 	MinBtn.Visible = false
@@ -319,6 +383,7 @@ TopbarButton.MouseButton1Click:Connect(function()
 			DragHandleTop.Visible = true
 			DragHandleBottom.Visible = true
 			MinBtn.Visible = true
+			FloatingHandle.Visible = true
 		end)
 	end
 end)
@@ -365,14 +430,22 @@ end)
 DragHandleTop.Visible = true
 DragHandleBottom.Visible = true
 MainFrame.Visible = true
+FloatingHandle.Visible = false
+
 MainFrame.BackgroundTransparency = 1
 MainFrame.Size = UDim2.new(0, 100, 0, 50)
 MainFrame.Position = UDim2.new(0.5, -50, 0.5, -25)
+
 TweenService:Create(MainFrame, TweenInfo.new(0.35, Enum.EasingStyle.Quad), {
 	Size = UDim2.new(0, 620, 0, 480),
 	Position = UDim2.new(0.5, -310, 0.5, -240),
 	BackgroundTransparency = 0
 }):Play()
+
+task.delay(0.4, function()
+	FloatingHandle.Position = UDim2.new(0.5, -60, 0, MainFrame.AbsolutePosition.Y + MainFrame.AbsoluteSize.Y + 10)
+	FloatingHandle.Visible = true
+end)
 
 return {
 	GUI = ScreenGui,
