@@ -21,6 +21,7 @@ return function(Theme)
 	MainFrame.BackgroundColor3 = Theme.BackgroundColor
 	MainFrame.BorderSizePixel = 0
 	MainFrame.Visible = false
+	MainFrame.ClipsDescendants = true
 	MainFrame.Parent = ScreenGui
 	Instance.new("UICorner", MainFrame).CornerRadius = Theme.CornerRadius
 
@@ -31,8 +32,8 @@ return function(Theme)
 	Shadow.ScaleType = Enum.ScaleType.Slice
 	Shadow.SliceCenter = Rect.new(10, 10, 118, 118)
 	Shadow.Size = UDim2.new(1, 60, 1, 60)
-	Shadow.Position = UDim2.new(0.5, -310, 0.5, -240)
 	Shadow.AnchorPoint = Vector2.new(0.5, 0.5)
+	Shadow.Position = UDim2.new(0.5, 0, 0.5, 0)
 	Shadow.BackgroundTransparency = 1
 	Shadow.ZIndex = -1
 	Shadow.Parent = MainFrame
@@ -94,59 +95,69 @@ return function(Theme)
 
 	local DragHandle = Instance.new("Frame")
 	DragHandle.Size = UDim2.new(0, 100, 0, 5)
-	DragHandle.Position = UDim2.new(0.5, -50, 1, -6)
-	DragHandle.AnchorPoint = Vector2.new(0.5, 1)
+	DragHandle.Position = UDim2.new(0.5, -50, 1, 6)
+	DragHandle.AnchorPoint = Vector2.new(0.5, 0)
 	DragHandle.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
 	DragHandle.BackgroundTransparency = 0.2
-	DragHandle.ZIndex = 3
-	DragHandle.Parent = MainFrame
+	DragHandle.ZIndex = 2
+	DragHandle.Parent = ScreenGui
 	Instance.new("UICorner", DragHandle).CornerRadius = UDim.new(1, 0)
 
+	-- 💫 Dragging only from top or bottom
 	local function makeDraggable(targetFrame, handle)
-	if not targetFrame or not handle then return end
-		local dragging, dragStart, startPos	
+		if not targetFrame or not handle then return end
+		local dragging = false
+		local dragStart, startPos
+
 		handle.InputBegan:Connect(function(input)
 			if input.UserInputType == Enum.UserInputType.MouseButton1 then
 				dragging = true
 				dragStart = input.Position
 				startPos = targetFrame.Position
-				input.Changed:Connect(function()
-					if input.UserInputState == Enum.UserInputState.End then
-						dragging = false
-					end
-				end)
 			end
 		end)
+
+		UserInputService.InputEnded:Connect(function(input)
+			if input.UserInputType == Enum.UserInputType.MouseButton1 then
+				dragging = false
+			end
+		end)
+
 		UserInputService.InputChanged:Connect(function(input)
 			if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
 				local delta = input.Position - dragStart
 				targetFrame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X,
 					startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+				DragHandle.Position = UDim2.new(0.5, -50, 0, targetFrame.AbsolutePosition.Y + targetFrame.AbsoluteSize.Y + 6)
 			end
 		end)
 	end
-	
+
 	makeDraggable(MainFrame, Topbar)
 	makeDraggable(MainFrame, DragHandle)
 
+	-- 🔘 Button Logic
 	CloseBtn.MouseButton1Click:Connect(function()
 		MainFrame.Visible = false
+		DragHandle.Visible = false
 		ScreenGui:Destroy()
 	end)
 
 	MinBtn.MouseButton1Click:Connect(function()
 		MinimizedFrame.Position = MainFrame.Position + UDim2.new(0, 0, 0, 240)
 		MainFrame.Visible = false
+		DragHandle.Visible = false
 		MinimizedFrame.Visible = true
 	end)
 
 	MinimizedFrame.MouseButton1Click:Connect(function()
 		MainFrame.Position = MinimizedFrame.Position - UDim2.new(0, 0, 0, 240)
 		MainFrame.Visible = true
+		DragHandle.Visible = true
 		MinimizedFrame.Visible = false
 	end)
 
-	-- Sidebar & Tabs
+	-- 📁 Tab Loader Setup
 	local TabBar = Instance.new("Frame")
 	TabBar.Name = "TabBar"
 	TabBar.Size = UDim2.new(0, 130, 1, -40)
@@ -232,11 +243,12 @@ return function(Theme)
 		end)
 	end
 
+	-- Load default tab
 	task.delay(0.35, function()
 		switchTab("UI/Tabs/Home/HomeTab")
 	end)
 
-	-- 💫 UI reveal animation
+	-- Animate in
 	MainFrame.Visible = true
 	MainFrame.BackgroundTransparency = 1
 	MainFrame.Size = UDim2.new(0, 100, 0, 50)
@@ -247,6 +259,9 @@ return function(Theme)
 		Position = UDim2.new(0.5, -310, 0.5, -240),
 		BackgroundTransparency = 0
 	}):Play()
+
+	-- Sync white bar on first frame
+	DragHandle.Position = UDim2.new(0.5, -50, 0, MainFrame.AbsolutePosition.Y + MainFrame.AbsoluteSize.Y + 6)
 
 	return {
 		GUI = ScreenGui,
