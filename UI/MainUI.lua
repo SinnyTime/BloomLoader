@@ -187,8 +187,6 @@ local function addHoverEffect(handle)
 	end)
 end
 
-addHoverEffect(DragHandleBottom)
-
 -- Dragging
 local function makeDraggable(targetFrame, handle)
 	local dragging = false
@@ -217,7 +215,6 @@ local function makeDraggable(targetFrame, handle)
 	end)
 end
 
-makeDraggable(MainFrame, DragHandleBottom)
 makeDraggable(MainFrame, TopbarButton)
 makeDraggable(MainFrame, FloatingHandle)
 addHoverEffect(FloatingHandle)
@@ -338,22 +335,22 @@ MinBtn.MouseButton1Click:Connect(function()
 		isMinimized = true
 		FloatingHandle.Visible = false
 		MinBtn.Text = "+"
+		MainFrame.BackgroundColor3 = Theme.BackgroundColor
 		TweenService:Create(MainFrame, TweenInfo.new(0.3), {
 			Size = UDim2.new(0, 620, 0, 40)
 		}):Play()
 		ContentArea.Visible = false
 		TabBar.Visible = false
-		DragHandleBottom.Visible = false
 	else
 		isMinimized = false
 		MinBtn.Text = "-"
+		MainFrame.BackgroundColor3 = Theme.BackgroundColor
 		TweenService:Create(MainFrame, TweenInfo.new(0.3), {
 			Size = UDim2.new(0, 620, 0, 480)
 		}):Play()
 		task.delay(0.3, function()
 			ContentArea.Visible = true
 			TabBar.Visible = true
-			DragHandleBottom.Visible = true
 			FloatingHandle.Visible = true
 			FloatingHandle.Position = UDim2.new(0.5, -60, 0, MainFrame.AbsolutePosition.Y + MainFrame.AbsoluteSize.Y + 10)
 		end)
@@ -380,7 +377,7 @@ local function checkForUpdates()
 			Title.Text = "🌱 Bloom | Version: " .. latest .. " | Bloom Management Portal"
 
 			if currentVersion and latest ~= currentVersion then
-				UpdateLabel.Text = "⚠️ Update " .. latest .. " available - Click to reload"
+				UpdateLabel.Text = "⚠️ v" .. latest .. " update"
 				UpdateLabel.TextColor3 = Color3.fromRGB(255, 100, 100)
 				UpdateLabel.TextXAlignment = Enum.TextXAlignment.Center
 				UpdateLabel.TextScaled = true
@@ -399,7 +396,7 @@ local function checkForUpdates()
 				
 				reloadClick.MouseButton1Click:Connect(function()
 					ScreenGui:Destroy()
-					loadstring(game:HttpGet("https://raw.githubusercontent.com/SinnyTime/GaGv2/main/Main.lua"))()(Theme)
+					loadstring(game:HttpGet("https://raw.githubusercontent.com/SinnyTime/GaGv2/main/Main.lua"))()
 				end)
 			else
 				UpdateLabel.Text = "✅ Bloom is up to date!"
@@ -419,7 +416,6 @@ task.spawn(function()
 	end
 end)
 
-DragHandleBottom.Visible = true
 MainFrame.Visible = true
 MainFrame.BackgroundColor3 = Theme.BackgroundColor
 MainFrame.BackgroundTransparency = 1
