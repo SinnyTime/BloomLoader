@@ -218,6 +218,12 @@ local function switchTab(tabModule, btn)
 	end
 end
 
+local tabs = {
+	{ name = "Home", module = "UI/Tabs/Home/HomeTab" },
+	{ name = "AutoBuy", module = "UI/Tabs/AutoBuy/AutoBuyTab" },
+	{ name = "AutoCollect", module = "UI/Tabs/AutoCollect/AutoCollectTab" },
+}
+
 for _, tabInfo in ipairs(tabs) do
 	local btn = Instance.new("TextButton")
 	btn.Size = UDim2.new(1, -20, 0, 36)
