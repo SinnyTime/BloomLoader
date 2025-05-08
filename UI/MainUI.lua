@@ -275,7 +275,7 @@ MinBtn.MouseButton1Click:Connect(function()
 	TabBar.Visible = false
 end)
 
-Topbar.MouseButton1Click:Connect(function()
+TopbarButton.MouseButton1Click:Connect(function()
 	if MainFrame.Size.Y.Offset == 40 then
 		TweenService:Create(MainFrame, TweenInfo.new(0.3), {
 			Size = UDim2.new(0, 620, 0, 480),
