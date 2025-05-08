@@ -38,12 +38,19 @@ return function(Theme)
 	Shadow.ZIndex = -1
 	Shadow.Parent = MainFrame
 
-		local Topbar = Instance.new("Frame")
+	local Topbar = Instance.new("Frame")
 	Topbar.Name = "Topbar"
 	Topbar.Size = UDim2.new(1, 0, 0, 40)
 	Topbar.BackgroundColor3 = Theme.SectionColor
 	Topbar.BorderSizePixel = 0
 	Topbar.Parent = MainFrame
+	
+	local TopbarButton = Instance.new("TextButton")
+	TopbarButton.Name = "TopbarButton"
+	TopbarButton.Size = UDim2.new(1, 0, 1, 0)
+	TopbarButton.BackgroundTransparency = 1
+	TopbarButton.Text = ""
+	TopbarButton.Parent = Topbar
 
 	local Title = Instance.new("TextLabel")
 	Title.Name = "Title"
