@@ -74,7 +74,7 @@ return function(parent, theme)
 	versionInfo.Parent = container
 
 	local creditInfo = Instance.new("TextLabel")
-	creditInfo.Text = "👤 Made by: SinnyTime"
+	creditInfo.Text = "👤 Made by: Bloom"
 	creditInfo.Font = theme.Font
 	creditInfo.TextSize = 14
 	creditInfo.TextColor3 = theme.TextColor
