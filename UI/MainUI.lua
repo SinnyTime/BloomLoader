@@ -81,16 +81,17 @@ return function(Theme)
 
 	local MinimizedFrame = Instance.new("TextButton")
 	MinimizedFrame.Text = "🌱 Bloom"
-	MinimizedFrame.Size = UDim2.new(0, 140, 0, 30)
-	MinimizedFrame.Position = UDim2.new(0, 20, 1, -40)
+	MinimizedFrame.Size = UDim2.new(0, 180, 0, 40)
+	MinimizedFrame.Position = UDim2.new(0, 20, 1, -50)
 	MinimizedFrame.AnchorPoint = Vector2.new(0, 1)
 	MinimizedFrame.BackgroundColor3 = Theme.SectionColor
 	MinimizedFrame.TextColor3 = Theme.TextColor
 	MinimizedFrame.Font = Theme.Font
-	MinimizedFrame.TextSize = 14
+	MinimizedFrame.TextSize = 16
 	MinimizedFrame.Visible = false
 	MinimizedFrame.Parent = ScreenGui
 	Instance.new("UICorner", MinimizedFrame).CornerRadius = Theme.CornerRadius
+
 
 	CloseBtn.MouseButton1Click:Connect(function()
 		TweenService:Create(MainFrame, TweenInfo.new(0.25), { BackgroundTransparency = 1 }):Play()
@@ -131,8 +132,19 @@ return function(Theme)
 		end)
 	end
 
+	-- Bottom Drag Bar
+	local DragHandle = Instance.new("Frame")
+	DragHandle.Size = UDim2.new(0, 100, 0, 5)
+	DragHandle.Position = UDim2.new(0.5, -50, 1, -8)
+	DragHandle.AnchorPoint = Vector2.new(0.5, 1)
+	DragHandle.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+	DragHandle.BackgroundTransparency = 0.2
+	DragHandle.Parent = MainFrame
+	Instance.new("UICorner", DragHandle).CornerRadius = UDim.new(1, 0)
+
 	makeDraggable(MainFrame)
 	makeDraggable(MinimizedFrame)
+	makeDraggable(DragHandle)
 
 	-- Sidebar + Tabs
 	local TabBar = Instance.new("Frame")
