@@ -1,3 +1,5 @@
-- Working on the UI Design
-- Changing bottom drag bar to ACTUALLY work properly
-- Animations to make it pretty and unique
+[2.0.2] - 2025-05-08
+✨ Added animated white drag handle and smooth minimize transition
+🌐 Version auto-updates
+📜 Changelog now appears directly in HomeTab
+🎨 Improved UI gaps and corners for a cleaner appearance
