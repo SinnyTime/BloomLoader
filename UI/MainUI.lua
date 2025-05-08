@@ -268,8 +268,9 @@ return function(Theme)
 		end
 	end)
 
-	-- Update Check System
-	local function checkForUpdates()
+local CURRENT_VERSION = nil
+
+local function checkForUpdates()
 	local success, result = pcall(function()
 		return game:HttpGet("https://raw.githubusercontent.com/SinnyTime/GaGv2/main/VERSION.txt")
 	end)
@@ -277,23 +278,13 @@ return function(Theme)
 	if success and result then
 		local latest = string.match(result, "[%d%.]+")
 		if latest then
-			-- Show latest version in UI
+			local currentVersion = Title.Text:match("Version:%s*([%d%.]+)") -- Capture BEFORE updating title
 			Title.Text = "🌱 Bloom | Version: " .. latest .. " | Bloom Management Portal"
+			CURRENT_VERSION = latest
 
-			-- Compare with self-loaded version
-			local loadedFrom = getfenv(1).script or "unknown"
-			local isMainScript = tostring(loadedFrom):lower():find("main.lua")
-
-			if isMainScript then
-				UpdateLabel.Text = "✅ Bloom is up to date!"
-				UpdateLabel.TextColor3 = Color3.fromRGB(100, 255, 100)
-				UpdateLabel.TextSize = 14
-				UpdateLabel.TextScaled = false
-			else
+			if currentVersion and latest ~= currentVersion then
 				UpdateLabel.Text = "⚠️ v" .. latest .. " update"
 				UpdateLabel.TextColor3 = Color3.fromRGB(255, 100, 100)
-				UpdateLabel.TextSize = 14
-				UpdateLabel.TextScaled = false
 
 				local reloadClick = Instance.new("TextButton")
 				reloadClick.BackgroundTransparency = 1
@@ -306,6 +297,9 @@ return function(Theme)
 					ScreenGui:Destroy()
 					loadstring(game:HttpGet("https://raw.githubusercontent.com/SinnyTime/GaGv2/main/Main.lua"))()
 				end)
+			else
+				UpdateLabel.Text = "✅ Bloom is up to date!"
+				UpdateLabel.TextColor3 = Color3.fromRGB(100, 255, 100)
 			end
 		else
 			UpdateLabel.Text = "⚠️ Error reading version"
