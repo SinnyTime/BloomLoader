@@ -1,4 +1,4 @@
-[2.0.8] - 2025-05-08
+[2.0.2] - 2025-05-08
 🖱️ Update alert is now clickable to auto-reload the latest UI
 ♻️ Instantly destroys and reinstalls Bloom UI with new code
 📦 Modular loading improved for future tabs and update scaling
