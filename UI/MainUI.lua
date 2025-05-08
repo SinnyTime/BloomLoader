@@ -8,7 +8,7 @@ return function(Theme)
 
 	local existing = safeParent:FindFirstChild("BloomUI")
 	if existing then existing:Destroy() end
-	
+
 	local ScreenGui = Instance.new("ScreenGui")
 	ScreenGui.Name = "BloomUI"
 	ScreenGui.ResetOnSpawn = false
@@ -17,41 +17,16 @@ return function(Theme)
 	ScreenGui.Parent = safeParent
 
 	local MainFrame = Instance.new("Frame")
-	MainFrame.ZIndex = 1
 	MainFrame.Name = "MainFrame"
 	MainFrame.Size = UDim2.new(0, 620, 0, 480)
 	MainFrame.Position = UDim2.new(0.5, -310, 0.5, -240)
-	MainFrame.AnchorPoint = Vector2.new(0.5, 0.5)
+	MainFrame.AnchorPoint = Vector2.new(0.5, 0)
 	MainFrame.BackgroundColor3 = Theme.BackgroundColor
 	MainFrame.BorderSizePixel = 0
 	MainFrame.Visible = false
 	MainFrame.ClipsDescendants = true
 	MainFrame.Parent = ScreenGui
 	Instance.new("UICorner", MainFrame).CornerRadius = Theme.CornerRadius
-
-	-- Create TabBar and ContentArea
-	local TabBar = Instance.new("Frame")
-	TabBar.Name = "TabBar"
-	TabBar.Size = UDim2.new(0, 130, 1, -40)
-	TabBar.Position = UDim2.new(0, 0, 0, 40)
-	TabBar.BackgroundColor3 = Theme.SectionColor
-	TabBar.BorderSizePixel = 0
-	TabBar.Parent = MainFrame
-	
-	local TabLayout = Instance.new("UIListLayout")
-	TabLayout.Padding = UDim.new(0, 8)
-	TabLayout.SortOrder = Enum.SortOrder.LayoutOrder
-	TabLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
-	TabLayout.VerticalAlignment = Enum.VerticalAlignment.Top
-	TabLayout.Parent = TabBar
-	
-	local ContentArea = Instance.new("Frame")
-	ContentArea.Name = "ContentArea"
-	ContentArea.Size = UDim2.new(1, -130, 1, -40)
-	ContentArea.Position = UDim2.new(0, 130, 0, 40)
-	ContentArea.BackgroundColor3 = Theme.BackgroundColor
-	ContentArea.BorderSizePixel = 0
-	ContentArea.Parent = MainFrame
 
 	local Shadow = Instance.new("ImageLabel")
 	Shadow.Name = "Shadow"
@@ -72,14 +47,13 @@ return function(Theme)
 	Topbar.BackgroundColor3 = Theme.SectionColor
 	Topbar.BorderSizePixel = 0
 	Topbar.Parent = MainFrame
-	
+
 	local TopbarButton = Instance.new("TextButton")
-	TopbarButton.Active = true
-	TopbarButton.AutoButtonColor = false
 	TopbarButton.Name = "TopbarButton"
 	TopbarButton.Size = UDim2.new(1, 0, 1, 0)
 	TopbarButton.BackgroundTransparency = 1
 	TopbarButton.Text = ""
+	TopbarButton.AutoButtonColor = false
 	TopbarButton.Parent = Topbar
 
 	local Title = Instance.new("TextLabel")
@@ -103,9 +77,7 @@ return function(Theme)
 	CloseBtn.Font = Theme.Font
 	CloseBtn.TextSize = 14
 	CloseBtn.Parent = Topbar
-	local UICorner = Instance.new("UICorner")
-	UICorner.CornerRadius = Theme.CornerRadius
-	UICorner.Parent = CloseBtn
+	Instance.new("UICorner", CloseBtn).CornerRadius = Theme.CornerRadius
 
 	local MinBtn = Instance.new("TextButton")
 	MinBtn.Size = UDim2.new(0, 24, 0, 24)
@@ -122,309 +94,183 @@ return function(Theme)
 	UpdateLabel.Name = "UpdateLabel"
 	UpdateLabel.Size = UDim2.new(0, 200, 1, 0)
 	UpdateLabel.Position = UDim2.new(1, -290, 0, 0)
+	UpdateLabel.BackgroundTransparency = 1
 	UpdateLabel.TextXAlignment = Enum.TextXAlignment.Right
 	UpdateLabel.TextWrapped = true
-	UpdateLabel.BackgroundTransparency = 1
 	UpdateLabel.TextColor3 = Color3.fromRGB(255, 200, 50)
 	UpdateLabel.TextSize = 14
 	UpdateLabel.Font = Theme.Font
 	UpdateLabel.Text = ""
 	UpdateLabel.Parent = Topbar
 
-	local MinimizedFrame = Instance.new("TextButton")
-	MinimizedFrame.Text = "🌱 Bloom"
-	MinimizedFrame.Size = UDim2.new(0, 180, 0, 40)
-	MinimizedFrame.Position = UDim2.new(0.5, -90, 0.5, -20)
-	MinimizedFrame.AnchorPoint = Vector2.new(0.5, 0.5)
-	MinimizedFrame.BackgroundColor3 = Theme.SectionColor
-	MinimizedFrame.TextColor3 = Theme.TextColor
-	MinimizedFrame.Font = Theme.Font
-	MinimizedFrame.TextSize = 16
-	MinimizedFrame.Visible = false
-	MinimizedFrame.Parent = ScreenGui
-	Instance.new("UICorner", MinimizedFrame).CornerRadius = Theme.CornerRadius
+	local TabBar = Instance.new("Frame")
+	TabBar.Name = "TabBar"
+	TabBar.Size = UDim2.new(0, 130, 1, -40)
+	TabBar.Position = UDim2.new(0, 0, 0, 40)
+	TabBar.BackgroundColor3 = Theme.SectionColor
+	TabBar.BorderSizePixel = 0
+	TabBar.Parent = MainFrame
 
-local FloatingHandle = Instance.new("TextButton")
-FloatingHandle.Name = "FloatingHandle"
-FloatingHandle.Size = UDim2.new(0, 120, 0, 6)
-FloatingHandle.AnchorPoint = Vector2.new(0.5, 0)
-FloatingHandle.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-FloatingHandle.BackgroundTransparency = 0.4
-FloatingHandle.Text = ""
-FloatingHandle.AutoButtonColor = false
-FloatingHandle.ZIndex = 2
-FloatingHandle.Parent = ScreenGui
-Instance.new("UICorner", FloatingHandle).CornerRadius = UDim.new(1, 0)
+	local TabLayout = Instance.new("UIListLayout")
+	TabLayout.Padding = UDim.new(0, 8)
+	TabLayout.SortOrder = Enum.SortOrder.LayoutOrder
+	TabLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
+	TabLayout.VerticalAlignment = Enum.VerticalAlignment.Top
+	TabLayout.Parent = TabBar
 
--- Reposition bar every frame
-RunService = game:GetService("RunService")
-RunService.RenderStepped:Connect(function()
-	if MainFrame.Visible and not isMinimized then
-		FloatingHandle.Visible = true
-		FloatingHandle.Position = UDim2.new(0.5, 0, 0, MainFrame.AbsolutePosition.Y + MainFrame.AbsoluteSize.Y + 8)
-	else
-		FloatingHandle.Visible = false
-	end
-end)
+	local ContentArea = Instance.new("Frame")
+	ContentArea.Name = "ContentArea"
+	ContentArea.Size = UDim2.new(1, -130, 1, -40)
+	ContentArea.Position = UDim2.new(0, 130, 0, 40)
+	ContentArea.BackgroundColor3 = Theme.BackgroundColor
+	ContentArea.BorderSizePixel = 0
+	ContentArea.Parent = MainFrame
 
--- Drag hover effects
-local function addHoverEffect(handle)
-	handle.MouseEnter:Connect(function()
-		TweenService:Create(handle, TweenInfo.new(0.15), {
-			Size = UDim2.new(0, 120, 0, 7),
-			BackgroundTransparency = 0.1
-		}):Play()
-	end)
-	handle.MouseLeave:Connect(function()
-		TweenService:Create(handle, TweenInfo.new(0.15), {
-			Size = UDim2.new(0, 120, 0, 6),
-			BackgroundTransparency = 0.2
-		}):Play()
-	end)
-end
+	local isMinimized = false
 
--- Dragging
-local function makeDraggable(targetFrame, handle)
-	local dragging = false
-	local dragStart, startPos
-
-	handle.InputBegan:Connect(function(input)
-		if input.UserInputType == Enum.UserInputType.MouseButton1 then
-			dragging = true
-			dragStart = input.Position
-			startPos = targetFrame.Position
-		end
-	end)
-
-	UserInputService.InputEnded:Connect(function(input)
-		if input.UserInputType == Enum.UserInputType.MouseButton1 then
-			dragging = false
-		end
-	end)
-
-	UserInputService.InputChanged:Connect(function(input)
-		if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
-			local delta = input.Position - dragStart
-			targetFrame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X,
-				startPos.Y.Scale, startPos.Y.Offset + delta.Y)
-		end
-	end)
-end
-
-makeDraggable(MainFrame, TopbarButton)
-makeDraggable(MainFrame, FloatingHandle)
-addHoverEffect(FloatingHandle)
-addHoverEffect(TopbarButton)
-
-
-local CurrentTab = nil
-	
--- Tab highlighting
-local currentSelectedBtn = nil
-local function switchTab(tabModule, btn)
-	if currentSelectedBtn == btn then return end
-	if not ContentArea or not ContentArea:IsDescendantOf(ScreenGui) then
-		warn("❌ ContentArea missing. Cannot load tab.")
-		return
-	end
-
-	if CurrentTab then
-		TweenService:Create(CurrentTab, TweenInfo.new(0.2), { BackgroundTransparency = 1 }):Play()
-		task.delay(0.2, function()
-			if CurrentTab then CurrentTab:Destroy() end
-		end)
-	end
-
-	local success, tab = pcall(function()
-		return loadstring(game:HttpGet("https://raw.githubusercontent.com/SinnyTime/GaGv2/main/" .. tabModule .. ".lua"))()
-	end)
-
-	if success and typeof(tab) == "function" then
-		CurrentTab = Instance.new("Frame")
-		CurrentTab.BackgroundTransparency = 1
-		CurrentTab.Size = UDim2.new(1, 0, 1, 0)
-		CurrentTab.BackgroundColor3 = Theme.BackgroundColor
-		CurrentTab.Parent = ContentArea
-		tab(CurrentTab, Theme)
-		TweenService:Create(CurrentTab, TweenInfo.new(0.2), { BackgroundTransparency = 0 }):Play()
-
-		if currentSelectedBtn then
-			currentSelectedBtn.BackgroundColor3 = Theme.SectionColor
-		end
-		currentSelectedBtn = btn
-		currentSelectedBtn.BackgroundColor3 = Theme.HighlightColor
-	else
-		warn("❌ Failed to load tab:", tabModule)
-	end
-end
-
-local tabs = {
-	{ name = "Home", module = "UI/Tabs/Home/HomeTab" }
-}
-
-for _, tabInfo in ipairs(tabs) do
-	local btn = Instance.new("TextButton")
-	btn.Size = UDim2.new(1, -20, 0, 36)
-	btn.Text = tabInfo.name
-	btn.BackgroundColor3 = Theme.SectionColor
-	btn.TextColor3 = Theme.TextColor
-	btn.Font = Theme.Font
-	btn.TextSize = 14
-	btn.AutoButtonColor = false
-	btn.Parent = TabBar
-	local corner = Instance.new("UICorner", btn)
-	corner.CornerRadius = Theme.CornerRadius
-
-	btn.MouseEnter:Connect(function()
-		if btn ~= currentSelectedBtn then
-			TweenService:Create(btn, TweenInfo.new(0.15), { BackgroundColor3 = Theme.HoverColor }):Play()
-		end
-	end)
-
-	btn.MouseLeave:Connect(function()
-		if btn ~= currentSelectedBtn then
-			TweenService:Create(btn, TweenInfo.new(0.15), { BackgroundColor3 = Theme.SectionColor }):Play()
-		end
-	end)
-
-	btn.MouseButton1Click:Connect(function()
-		switchTab(tabInfo.module, btn)
-	end)
-end
-
-task.delay(0.35, function()
-	local firstTab
-	for _, child in ipairs(TabBar:GetChildren()) do
-		if child:IsA("TextButton") and child.Text == "Home" then
-			firstTab = child
-			break
-		end
-	end
-	if firstTab then
-		switchTab("UI/Tabs/Home/HomeTab", firstTab)
-	else
-		warn("❌ Couldn't find 'Home' tab to set as default.")
-	end
-end)
-
--- Improved minimize/maximize
-local isMinimized = false
-
-MinBtn.MouseButton1Click:Connect(function()
-	if not isMinimized then
-		isMinimized = true
-		FloatingHandle.Visible = false
-		MinBtn.Text = "+"
-		MainFrame.BackgroundColor3 = Theme.BackgroundColor
-		TweenService:Create(MainFrame, TweenInfo.new(0.3), {
-			Size = UDim2.new(0, 620, 0, 40),
-			BackgroundTransparency = 0
-		}):Play()
-		ContentArea.Visible = false
-		TabBar.Visible = false
-	else
-		isMinimized = false
-		MinBtn.Text = "-"
-		MainFrame.BackgroundColor3 = Theme.BackgroundColor
-		TweenService:Create(MainFrame, TweenInfo.new(0.3), {
-			Size = UDim2.new(0, 620, 0, 480),
-			BackgroundTransparency = 0
-		}):Play()
-		task.delay(0.3, function()
-			ContentArea.Visible = true
-			TabBar.Visible = true
-			task.delay(0.35, function()
-			FloatingHandle.Visible = true
-			end)
-		end)
-	end
-end)
-
-CloseBtn.MouseButton1Click:Connect(function()
-	TweenService:Create(MainFrame, TweenInfo.new(0.2), { BackgroundTransparency = 1, Position = MainFrame.Position + UDim2.new(0, 0, -0.1, 0) }):Play()
-	task.delay(0.2, function()
-		ScreenGui:Destroy()
-	end)
-end)
-
-	-- Update check loop (permanent notification)
-local function checkForUpdates()
-	local success, result = pcall(function()
-		return game:HttpGet("https://raw.githubusercontent.com/SinnyTime/GaGv2/main/VERSION.txt")
-	end)
-
-	if success and result then
-		local latest = string.match(result, "[%d%.]+")
-		if latest then
-			local currentVersion = Title.Text:match("Version:%s*([%d%.]+)")
-			Title.Text = "🌱 Bloom | Version: " .. latest .. " | Bloom Management Portal"
-
-			if currentVersion and latest ~= currentVersion then
-				UpdateLabel.Text = "⚠️ v" .. latest .. " update"
-				UpdateLabel.TextColor3 = Color3.fromRGB(255, 100, 100)
-				UpdateLabel.TextXAlignment = Enum.TextXAlignment.Center
-				UpdateLabel.TextScaled = true
-				UpdateLabel.Font = Theme.Font
-				UpdateLabel.TextWrapped = true
-				UpdateLabel.TextSize = 10
-				UpdateLabel.TextStrokeTransparency = 0.5
-				UpdateLabel.TextTransparency = 0
-				
-				local reloadClick = Instance.new("TextButton")
-				reloadClick.BackgroundTransparency = 1
-				reloadClick.Size = UpdateLabel.Size
-				reloadClick.Position = UpdateLabel.Position
-				reloadClick.Text = ""
-				reloadClick.Parent = Topbar
-				
-				reloadClick.MouseButton1Click:Connect(function()
-					ScreenGui:Destroy()
-					loadstring(game:HttpGet("https://raw.githubusercontent.com/SinnyTime/GaGv2/main/Main.lua"))()
-				end)
-			else
-				UpdateLabel.Text = "✅ Bloom is up to date!"
-			end
+	MinBtn.MouseButton1Click:Connect(function()
+		if not isMinimized then
+			isMinimized = true
+			ContentArea.Visible = false
+			TabBar.Visible = false
+			MinBtn.Text = "+"
+			TweenService:Create(MainFrame, TweenInfo.new(0.3), {
+				Size = UDim2.new(0, 620, 0, 40)
+			}):Play()
 		else
-			UpdateLabel.Text = "⚠️ Error reading version"
+			isMinimized = false
+			MinBtn.Text = "-"
+			TweenService:Create(MainFrame, TweenInfo.new(0.3), {
+				Size = UDim2.new(0, 620, 0, 480)
+			}):Play()
+			task.delay(0.3, function()
+				ContentArea.Visible = true
+				TabBar.Visible = true
+			end)
 		end
-	else
-		UpdateLabel.Text = "⚠️ Failed to check updates"
+	end)
+
+	CloseBtn.MouseButton1Click:Connect(function()
+		TweenService:Create(MainFrame, TweenInfo.new(0.2), {
+			BackgroundTransparency = 1,
+			Position = MainFrame.Position + UDim2.new(0, 0, -0.1, 0)
+		}):Play()
+		task.delay(0.2, function()
+			ScreenGui:Destroy()
+		end)
+	end)
+
+	local function makeDraggable(target, handle)
+		local dragging, dragStart, startPos = false
+
+		handle.InputBegan:Connect(function(input)
+			if input.UserInputType == Enum.UserInputType.MouseButton1 then
+				dragging = true
+				dragStart = input.Position
+				startPos = target.Position
+			end
+		end)
+
+		UserInputService.InputEnded:Connect(function(input)
+			if input.UserInputType == Enum.UserInputType.MouseButton1 then
+				dragging = false
+			end
+		end)
+
+		UserInputService.InputChanged:Connect(function(input)
+			if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
+				local delta = input.Position - dragStart
+				target.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+			end
+		end)
 	end
-end
 
-task.spawn(function()
-	while true do
-		checkForUpdates()
-		task.wait(30)
+	makeDraggable(MainFrame, TopbarButton)
+
+	-- Startup Animation
+	MainFrame.Visible = true
+	MainFrame.Size = UDim2.new(0, 100, 0, 50)
+	MainFrame.Position = UDim2.new(0.5, 0, 0.5, 0)
+	TweenService:Create(MainFrame, TweenInfo.new(0.35, Enum.EasingStyle.Quad), {
+		Size = UDim2.new(0, 620, 0, 480),
+		Position = UDim2.new(0.5, -310, 0.5, -240)
+	}):Play()
+
+	-- Tabs
+	local currentTab, currentBtn = nil, nil
+	local function switchTab(tabModule, btn)
+		if btn == currentBtn then return end
+		if currentTab then
+			TweenService:Create(currentTab, TweenInfo.new(0.2), { BackgroundTransparency = 1 }):Play()
+			task.delay(0.2, function() currentTab:Destroy() end)
+		end
+
+		local success, tab = pcall(function()
+			return loadstring(game:HttpGet("https://raw.githubusercontent.com/SinnyTime/GaGv2/main/" .. tabModule .. ".lua"))()
+		end)
+
+		if success and typeof(tab) == "function" then
+			currentTab = Instance.new("Frame")
+			currentTab.Size = UDim2.new(1, 0, 1, 0)
+			currentTab.BackgroundTransparency = 1
+			currentTab.BackgroundColor3 = Theme.BackgroundColor
+			currentTab.Parent = ContentArea
+			tab(currentTab, Theme)
+			TweenService:Create(currentTab, TweenInfo.new(0.2), { BackgroundTransparency = 0 }):Play()
+
+			if currentBtn then currentBtn.BackgroundColor3 = Theme.SectionColor end
+			currentBtn = btn
+			currentBtn.BackgroundColor3 = Theme.HighlightColor
+		else
+			warn("Failed to load tab:", tabModule)
+		end
 	end
-end)
 
-MainFrame.Visible = true
-MainFrame.BackgroundColor3 = Theme.BackgroundColor
-MainFrame.BackgroundTransparency = 1
-MainFrame.Size = UDim2.new(0, 100, 0, 50)
-MainFrame.Position = UDim2.new(0.5, 0, 0.5, 0)
+	for _, tabInfo in ipairs({
+		{ name = "Home", module = "UI/Tabs/Home/HomeTab" }
+	}) do
+		local btn = Instance.new("TextButton")
+		btn.Size = UDim2.new(1, -20, 0, 36)
+		btn.Text = tabInfo.name
+		btn.BackgroundColor3 = Theme.SectionColor
+		btn.TextColor3 = Theme.TextColor
+		btn.Font = Theme.Font
+		btn.TextSize = 14
+		btn.AutoButtonColor = false
+		btn.Parent = TabBar
+		Instance.new("UICorner", btn).CornerRadius = Theme.CornerRadius
 
-TweenService:Create(MainFrame, TweenInfo.new(0.35, Enum.EasingStyle.Quad), {
-	Size = UDim2.new(0, 620, 0, 480),
-	Position = UDim2.new(0.5, -310, 0.5, -240),
-	BackgroundTransparency = 0
-}):Play()
+		btn.MouseEnter:Connect(function()
+			if btn ~= currentBtn then
+				TweenService:Create(btn, TweenInfo.new(0.15), { BackgroundColor3 = Theme.HoverColor }):Play()
+			end
+		end)
 
--- Keep FloatingHandle positioned under MainFrame
-RunService = game:GetService("RunService")
-RunService.RenderStepped:Connect(function()
-	if FloatingHandle.Visible then
-		FloatingHandle.Position = UDim2.new(0.5, -40, 0, MainFrame.AbsolutePosition.Y + MainFrame.AbsoluteSize.Y + 10)
+		btn.MouseLeave:Connect(function()
+			if btn ~= currentBtn then
+				TweenService:Create(btn, TweenInfo.new(0.15), { BackgroundColor3 = Theme.SectionColor }):Play()
+			end
+		end)
+
+		btn.MouseButton1Click:Connect(function()
+			switchTab(tabInfo.module, btn)
+		end)
 	end
-end)
 
+	task.delay(0.35, function()
+		for _, child in ipairs(TabBar:GetChildren()) do
+			if child:IsA("TextButton") and child.Text == "Home" then
+				switchTab("UI/Tabs/Home/HomeTab", child)
+				break
+			end
+		end
+	end)
 
-return {
-	GUI = ScreenGui,
-	MainFrame = MainFrame,
-	Topbar = Topbar,
-	TabBar = TabBar,
-	ContentArea = ContentArea,
-}
+	return {
+		GUI = ScreenGui,
+		MainFrame = MainFrame,
+		Topbar = Topbar,
+		TabBar = TabBar,
+		ContentArea = ContentArea,
+	}
 end
