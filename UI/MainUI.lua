@@ -282,6 +282,39 @@ CloseBtn.MouseButton1Click:Connect(function()
 	end)
 end)
 
+	-- Update check loop (permanent notification)
+local function checkForUpdates()
+	local success, result = pcall(function()
+		return game:HttpGet("https://raw.githubusercontent.com/SinnyTime/GaGv2/main/VERSION.txt")
+	end)
+
+	if success and result then
+		local latest = string.match(result, "[%d%.]+")
+		if latest then
+			local currentVersion = string.match(Title.Text, "Version:%s*(%d+%.%d+%.%d+)")
+			Title.Text = "🌱 Bloom | Version: " .. latest .. " | Bloom Management Portal"
+
+			if currentVersion and latest ~= currentVersion then
+				UpdateLabel.Text = "⚠️ Update " .. latest .. " available"
+			else
+				UpdateLabel.Text = "✅ Bloom is up to date!"
+			end
+		else
+			UpdateLabel.Text = "⚠️ Error reading version"
+		end
+	else
+		UpdateLabel.Text = "⚠️ Failed to check updates"
+	end
+end
+
+task.spawn(function()
+	while true do
+		checkForUpdates()
+		task.wait(30)
+	end
+end)
+
+
 MainFrame.Visible = true
 MainFrame.BackgroundTransparency = 1
 MainFrame.Size = UDim2.new(0, 100, 0, 50)
