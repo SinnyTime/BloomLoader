@@ -24,57 +24,19 @@ return function(Theme)
 	MainFrame.Parent = ScreenGui
 	Instance.new("UICorner", MainFrame).CornerRadius = Theme.CornerRadius
 
-	-- Bottom Drag Handle
-	local DragHandle = Instance.new("Frame")
-	DragHandle.Size = UDim2.new(0, 100, 0, 5)
-	DragHandle.Position = UDim2.new(0.5, -50, 1, -6)
-	DragHandle.AnchorPoint = Vector2.new(0.5, 1)
-	DragHandle.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-	DragHandle.BackgroundTransparency = 0.2
-	DragHandle.ZIndex = 3
-	DragHandle.Parent = MainFrame
-	Instance.new("UICorner", DragHandle).CornerRadius = UDim.new(1, 0)
+	local Shadow = Instance.new("ImageLabel")
+	Shadow.Name = "Shadow"
+	Shadow.Image = "rbxassetid://1316045217"
+	Shadow.ImageTransparency = 0.6
+	Shadow.ScaleType = Enum.ScaleType.Slice
+	Shadow.SliceCenter = Rect.new(10, 10, 118, 118)
+	Shadow.Size = UDim2.new(1, 60, 1, 60)
+	Shadow.Position = UDim2.new(0.5, -310, 0.5, -240)
+	Shadow.AnchorPoint = Vector2.new(0.5, 0.5)
+	Shadow.BackgroundTransparency = 1
+	Shadow.ZIndex = -1
+	Shadow.Parent = MainFrame
 
-	-- Dragging Logic (global mouse-based)
-	local function makeDraggable(frame)
-		local dragging = false
-		local dragStart, startPos
-
-		frame.InputBegan:Connect(function(input)
-			if input.UserInputType == Enum.UserInputType.MouseButton1 then
-				dragging = true
-				dragStart = input.Position
-				startPos = frame.Position
-				input.Changed:Connect(function()
-					if input.UserInputState == Enum.UserInputState.End then
-						dragging = false
-					end
-				end)
-			end
-		end)
-
-		UserInputService.InputChanged:Connect(function(input)
-			if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
-				local delta = input.Position - dragStart
-				frame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X,
-					startPos.Y.Scale, startPos.Y.Offset + delta.Y)
-			end
-		end)
-	end
-
-	task.delay(0.05, function()
-		MainFrame.Visible = true
-		MainFrame.BackgroundTransparency = 1
-		MainFrame.Size = UDim2.new(0, 100, 0, 50)
-		MainFrame.Position = UDim2.new(0.5, -50, 0.5, -25)
-		TweenService:Create(MainFrame, TweenInfo.new(0.35, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
-			Size = UDim2.new(0, 620, 0, 480),
-			Position = UDim2.new(0.5, -310, 0.5, -240),
-			BackgroundTransparency = 0
-		}):Play()
-	end)
-
-	-- Topbar
 	local Topbar = Instance.new("Frame")
 	Topbar.Name = "Topbar"
 	Topbar.Size = UDim2.new(1, 0, 0, 40)
@@ -130,6 +92,44 @@ return function(Theme)
 	MinimizedFrame.Parent = ScreenGui
 	Instance.new("UICorner", MinimizedFrame).CornerRadius = Theme.CornerRadius
 
+	local DragHandle = Instance.new("Frame")
+	DragHandle.Size = UDim2.new(0, 100, 0, 5)
+	DragHandle.Position = UDim2.new(0.5, -50, 1, -6)
+	DragHandle.AnchorPoint = Vector2.new(0.5, 1)
+	DragHandle.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+	DragHandle.BackgroundTransparency = 0.2
+	DragHandle.ZIndex = 3
+	DragHandle.Parent = MainFrame
+	Instance.new("UICorner", DragHandle).CornerRadius = UDim.new(1, 0)
+
+	local function makeDraggable(frame)
+		local dragging = false
+		local dragStart, startPos
+
+		frame.InputBegan:Connect(function(input)
+			if input.UserInputType == Enum.UserInputType.MouseButton1 then
+				dragging = true
+				dragStart = input.Position
+				startPos = frame.Position
+				input.Changed:Connect(function()
+					if input.UserInputState == Enum.UserInputState.End then dragging = false end
+				end)
+			end
+		end)
+
+		UserInputService.InputChanged:Connect(function(input)
+			if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
+				local delta = input.Position - dragStart
+				frame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X,
+					startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+			end
+		end)
+	end
+
+	makeDraggable(Topbar)
+	makeDraggable(DragHandle)
+	makeDraggable(MinimizedFrame)
+
 	CloseBtn.MouseButton1Click:Connect(function()
 		MainFrame.Visible = false
 		ScreenGui:Destroy()
@@ -175,9 +175,9 @@ return function(Theme)
 
 	local CurrentTab = nil
 	local tabs = {
-	    { name = "Home", module = "UI/Tabs/Home/HomeTab" },
-	    { name = "AutoBuy", module = "UI/Tabs/AutoBuy/AutoBuyTab" },
-	    { name = "AutoCollect", module = "UI/Tabs/AutoCollect/AutoCollectTab" },
+		{ name = "Home", module = "UI/Tabs/Home/HomeTab" },
+		{ name = "AutoBuy", module = "UI/Tabs/AutoBuy/AutoBuyTab" },
+		{ name = "AutoCollect", module = "UI/Tabs/AutoCollect/AutoCollectTab" },
 	}
 
 	local function switchTab(tabModule)
@@ -233,13 +233,7 @@ return function(Theme)
 		end)
 	end
 
-	-- Load Default Tab
-	switchTab("Tabs/Home/HomeTab")
-
-	-- Enable dragging
-	makeDraggable(MainFrame)
-	makeDraggable(MinimizedFrame)
-	makeDraggable(DragHandle)
+	task.delay(0.35, function() switchTab("UI/Tabs/Home/HomeTab") end)
 
 	return {
 		GUI = ScreenGui,
