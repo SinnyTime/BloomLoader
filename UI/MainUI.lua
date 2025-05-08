@@ -274,48 +274,39 @@ local function checkForUpdates()
 	end)
 
 	if success and result then
-		local latest = string.match(result, "[%d%.]+")
-		if latest then
-			local currentVersion = Title.Text:match("Version:%s*([%d%.]+)")
-			if currentVersion and latest ~= currentVersion then
-				UpdateLabel.Text = "⚠️ v" .. latest .. " update"
-				UpdateLabel.TextColor3 = Color3.fromRGB(255, 100, 100)
-				UpdateLabel.TextXAlignment = Enum.TextXAlignment.Center
-				UpdateLabel.TextScaled = true
-				UpdateLabel.Font = Theme.Font
-				UpdateLabel.TextWrapped = true
-				UpdateLabel.TextSize = 10
-				UpdateLabel.TextStrokeTransparency = 0.5
-				UpdateLabel.TextTransparency = 0
+	local latest = string.match(result, "[%d%.]+")
+	if latest then
+		Title.Text = "🌱 Bloom | Version: " .. latest .. " | Bloom Management Portal"
+			UpdateLabel.Text = "⚠️ v" .. latest .. " update"
+			UpdateLabel.TextColor3 = Color3.fromRGB(255, 100, 100)
+			UpdateLabel.TextXAlignment = Enum.TextXAlignment.Center
+			UpdateLabel.TextScaled = true
+			UpdateLabel.Font = Theme.Font
+			UpdateLabel.TextWrapped = true
+			UpdateLabel.TextSize = 10
+			UpdateLabel.TextStrokeTransparency = 0.5
+			UpdateLabel.TextTransparency = 0
 
-				local reloadClick = Instance.new("TextButton")
-				reloadClick.BackgroundTransparency = 1
-				reloadClick.Size = UpdateLabel.Size
-				reloadClick.Position = UpdateLabel.Position
-				reloadClick.Text = ""
-				reloadClick.Parent = Topbar
+			local reloadClick = Instance.new("TextButton")
+			reloadClick.BackgroundTransparency = 1
+			reloadClick.Size = UpdateLabel.Size
+			reloadClick.Position = UpdateLabel.Position
+			reloadClick.Text = ""
+			reloadClick.Parent = Topbar
 
-				reloadClick.MouseButton1Click:Connect(function()
-					ScreenGui:Destroy()
-					loadstring(game:HttpGet("https://raw.githubusercontent.com/SinnyTime/GaGv2/main/Main.lua"))()
-				end)
-			else
-				UpdateLabel.Text = "✅ Bloom is up to date!"
-			end
+			reloadClick.MouseButton1Click:Connect(function()
+				ScreenGui:Destroy()
+				loadstring(game:HttpGet("https://raw.githubusercontent.com/SinnyTime/GaGv2/main/Main.lua"))()
+			end)
 		else
-			UpdateLabel.Text = "⚠️ Error reading version"
+			UpdateLabel.Text = "✅ Bloom is up to date!"
 		end
 	else
-		UpdateLabel.Text = "⚠️ Failed to check updates"
+		UpdateLabel.Text = "⚠️ Error reading version"
 	end
+else
+	UpdateLabel.Text = "⚠️ Failed to check updates"
 end
-
-task.spawn(function()
-	while true do
-		checkForUpdates()
-		task.wait(30)
-	end
-end)
 
 
 task.spawn(function()
