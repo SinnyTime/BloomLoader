@@ -366,7 +366,7 @@ local function checkForUpdates()
 				UpdateLabel.TextScaled = true
 				UpdateLabel.Font = Theme.Font
 				UpdateLabel.TextWrapped = true
-				UpdateLabel.TextSize = 14
+				UpdateLabel.TextSize = 10
 				UpdateLabel.TextStrokeTransparency = 0.5
 				UpdateLabel.TextTransparency = 0
 				
