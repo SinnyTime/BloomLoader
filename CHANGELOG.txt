@@ -1,6 +1,6 @@
-[2.0.6] - 2025-05-08
-✨ Added animated white drag handle with smooth hover effects
-📉 Implemented seamless minimize/maximize transition (with icon toggle)
-🌐 Automatic version check with live update display
-📜 Changelog now visible directly in the Home tab
-🎨 Refined UI spacing, padding, and corner rounding for a cleaner look
+[2.0.7] - 2025-05-08
+🖱️ Update alert is now clickable to auto-reload the latest UI
+♻️ Instantly destroys and reinstalls Bloom UI with new code
+📦 Modular loading improved for future tabs and update scaling
+🔒 Fixed duplicate drag bars and ensured topbar is draggable
+🎯 Ensured perfect update detection with version text parsing
