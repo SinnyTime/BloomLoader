@@ -1,17 +1,17 @@
 return {
-	Name = "Verdant",
+	Name = "BloomCore",
 
 	-- 🌑 Base Colors
-	BackgroundColor = Color3.fromRGB(25, 25, 25),
-	SectionColor = Color3.fromRGB(35, 35, 35),
-	TextColor = Color3.fromRGB(230, 230, 230),
-	AccentColor = Color3.fromRGB(0, 200, 120), -- light verdant green
-	HoverColor = Color3.fromRGB(45, 45, 45),
+	BackgroundColor = Color3.fromRGB(20, 20, 30),     -- Deep twilight base
+	SectionColor     = Color3.fromRGB(30, 30, 45),     -- Layered contrast
+	TextColor        = Color3.fromRGB(235, 230, 255),  -- Misty light
+	AccentColor      = Color3.fromRGB(170, 90, 255),   -- Bloom purple 💜
+	HoverColor       = Color3.fromRGB(60, 50, 90),     -- Soft dark violet
 
 	-- 🧵 Fonts + Corners
-	Font = Enum.Font.GothamSemibold,
+	Font = Enum.Font.GothamMedium,
 	CornerRadius = UDim.new(0, 10),
 
-	-- 🪄 Future animation speed, if needed
+	-- ✨ Animation
 	AnimationSpeed = 0.25
 }
