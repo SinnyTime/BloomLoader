@@ -44,7 +44,6 @@ return function(Theme)
 	Topbar.BackgroundColor3 = Theme.SectionColor
 	Topbar.BorderSizePixel = 0
 	Topbar.Parent = MainFrame
-	Instance.new("UICorner", Topbar).CornerRadius = Theme.CornerRadius
 
 	local Title = Instance.new("TextLabel")
 	Title.Name = "Title"
@@ -93,16 +92,40 @@ return function(Theme)
 	MinimizedFrame.Parent = ScreenGui
 	Instance.new("UICorner", MinimizedFrame).CornerRadius = Theme.CornerRadius
 
-	local DragHandle = Instance.new("Frame")
+	local DragHandle = Instance.new("TextButton")
 	DragHandle.Size = UDim2.new(0, 100, 0, 5)
 	DragHandle.Position = UDim2.new(0.5, -50, 1, 6)
 	DragHandle.AnchorPoint = Vector2.new(0.5, 0)
 	DragHandle.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
 	DragHandle.BackgroundTransparency = 0.2
-	DragHandle.ZIndex = 2
-	DragHandle.Parent = ScreenGui
+	DragHandle.Text = ""
+	DragHandle.AutoButtonColor = false
+	DragHandle.ZIndex = 3
+	DragHandle.Parent = MainFrame -- ❗ now part of MainFrame
 	Instance.new("UICorner", DragHandle).CornerRadius = UDim.new(1, 0)
-
+	
+	-- Animate on hover
+	DragHandle.MouseEnter:Connect(function()
+		TweenService:Create(DragHandle, TweenInfo.new(0.15), {
+			Size = UDim2.new(0, 120, 0, 7),
+			BackgroundTransparency = 0.1
+		}):Play()
+	end)
+	DragHandle.MouseLeave:Connect(function()
+		TweenService:Create(DragHandle, TweenInfo.new(0.15), {
+			Size = UDim2.new(0, 100, 0, 5),
+			BackgroundTransparency = 0.2
+		}):Play()
+	end)
+	DragHandle.MouseButton1Down:Connect(function()
+		DragHandle.BackgroundColor3 = Color3.new(1, 1, 1)
+	end)
+	UserInputService.InputEnded:Connect(function(input)
+		if input.UserInputType == Enum.UserInputType.MouseButton1 then
+			DragHandle.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+		end
+	end)
+	
 	local function makeDraggable(targetFrame, handle)
 		if not targetFrame or not handle then return end
 		local dragging = false
@@ -162,7 +185,6 @@ return function(Theme)
 	TabBar.BackgroundColor3 = Theme.SectionColor
 	TabBar.BorderSizePixel = 0
 	TabBar.Parent = MainFrame
-	Instance.new("UICorner", TabBar).CornerRadius = Theme.CornerRadius
 
 	local TabLayout = Instance.new("UIListLayout")
 	TabLayout.Padding = UDim.new(0, 8)
@@ -178,7 +200,6 @@ return function(Theme)
 	ContentArea.BackgroundColor3 = Theme.BackgroundColor
 	ContentArea.BorderSizePixel = 0
 	ContentArea.Parent = MainFrame
-	Instance.new("UICorner", ContentArea).CornerRadius = Theme.CornerRadius
 
 	local CurrentTab = nil
 	local tabs = {
@@ -256,6 +277,39 @@ return function(Theme)
 	}):Play()
 
 	DragHandle.Position = UDim2.new(0.5, -50, 0, MainFrame.AbsolutePosition.Y + MainFrame.AbsoluteSize.Y + 6)
+	-- 🌐 Version Update Checker
+	local CURRENT_VERSION = "2.0.02"
+	local UpdateLabel = Instance.new("TextLabel")
+	UpdateLabel.Size = UDim2.new(0, 120, 0, 24)
+	UpdateLabel.Position = UDim2.new(0, 230, 0, 8)
+	UpdateLabel.BackgroundTransparency = 1
+	UpdateLabel.TextColor3 = Color3.fromRGB(255, 200, 50)
+	UpdateLabel.TextSize = 14
+	UpdateLabel.Font = Theme.Font
+	UpdateLabel.TextXAlignment = Enum.TextXAlignment.Left
+	UpdateLabel.Text = ""
+	UpdateLabel.Parent = Topbar
+
+	local function checkForUpdates()
+		local success, result = pcall(function()
+			return game:HttpGet("https://raw.githubusercontent.com/SinnyTime/GaGv2/main/VERSION.txt")
+		end)
+
+		if success and result then
+			local latest = string.match(result, "[%d%.]+")
+			if latest and latest ~= CURRENT_VERSION then
+				UpdateLabel.Text = "⚠️ Update " .. latest .. " available"
+			else
+				UpdateLabel.Text = ""
+			end
+		end
+	end
+
+	checkForUpdates()
+	while true do
+		task.wait(30) -- check every 30 seconds
+		checkForUpdates()
+	end
 
 	return {
 		GUI = ScreenGui,
