@@ -25,6 +25,30 @@ return function(Theme)
 	MainFrame.Parent = ScreenGui
 	Instance.new("UICorner", MainFrame).CornerRadius = Theme.CornerRadius
 
+	-- Create TabBar and ContentArea
+	local TabBar = Instance.new("Frame")
+	TabBar.Name = "TabBar"
+	TabBar.Size = UDim2.new(0, 130, 1, -40)
+	TabBar.Position = UDim2.new(0, 0, 0, 40)
+	TabBar.BackgroundColor3 = Theme.SectionColor
+	TabBar.BorderSizePixel = 0
+	TabBar.Parent = MainFrame
+	
+	local TabLayout = Instance.new("UIListLayout")
+	TabLayout.Padding = UDim.new(0, 8)
+	TabLayout.SortOrder = Enum.SortOrder.LayoutOrder
+	TabLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
+	TabLayout.VerticalAlignment = Enum.VerticalAlignment.Top
+	TabLayout.Parent = TabBar
+	
+	local ContentArea = Instance.new("Frame")
+	ContentArea.Name = "ContentArea"
+	ContentArea.Size = UDim2.new(1, -130, 1, -40)
+	ContentArea.Position = UDim2.new(0, 130, 0, 40)
+	ContentArea.BackgroundColor3 = Theme.BackgroundColor
+	ContentArea.BorderSizePixel = 0
+	ContentArea.Parent = MainFrame
+
 	local Shadow = Instance.new("ImageLabel")
 	Shadow.Name = "Shadow"
 	Shadow.Image = "rbxassetid://1316045217"
@@ -262,17 +286,25 @@ for _, tabInfo in ipairs(tabs) do
 end
 
 task.delay(0.35, function()
-	switchTab("UI/Tabs/Home/HomeTab", TabBar:FindFirstChild("TextButton"))
+	local firstTabButton = TabBar:FindFirstChildWhichIsA("TextButton")
+	if firstTabButton then
+		switchTab("UI/Tabs/Home/HomeTab", firstTabButton)
+	else
+		warn("❌ Couldn't find any tab button inside TabBar!")
+	end
 end)
 
 -- Improved minimize/maximize
 MinBtn.MouseButton1Click:Connect(function()
 	TweenService:Create(MainFrame, TweenInfo.new(0.3), {
-		Size = UDim2.new(0, 620, 0, 40), 
+		Size = UDim2.new(0, 620, 0, 40),
 		Position = MainFrame.Position + UDim2.new(0, 0, 0.46, 0)
 	}):Play()
 	ContentArea.Visible = false
 	TabBar.Visible = false
+	DragHandleTop.Visible = false
+	DragHandleBottom.Visible = false
+	MinBtn.Visible = false
 end)
 
 TopbarButton.MouseButton1Click:Connect(function()
@@ -284,6 +316,9 @@ TopbarButton.MouseButton1Click:Connect(function()
 		task.delay(0.3, function()
 			ContentArea.Visible = true
 			TabBar.Visible = true
+			DragHandleTop.Visible = true
+			DragHandleBottom.Visible = true
+			MinBtn.Visible = true
 		end)
 	end
 end)
@@ -327,7 +362,8 @@ task.spawn(function()
 	end
 end)
 
-
+DragHandleTop.Visible = true
+DragHandleBottom.Visible = true
 MainFrame.Visible = true
 MainFrame.BackgroundTransparency = 1
 MainFrame.Size = UDim2.new(0, 100, 0, 50)
