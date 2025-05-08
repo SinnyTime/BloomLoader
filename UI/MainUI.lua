@@ -8,6 +8,8 @@ return function(Theme)
 
 	local existing = safeParent:FindFirstChild("BloomUI")
 	if existing then existing:Destroy() end
+	local oldHandle = safeParent:FindFirstChild("FloatingHandle")
+	if oldHandle then oldHandle:Destroy() end
 	
 	local ScreenGui = Instance.new("ScreenGui")
 	ScreenGui.Name = "BloomUI"
@@ -31,7 +33,8 @@ return function(Theme)
 	-- Animated Drag Handle Below UI
 	local FloatingHandle = Instance.new("TextButton")
 	FloatingHandle.Size = UDim2.new(0, 120, 0, 6)
-	FloatingHandle.Position = UDim2.new(0.5, -60, 0.5, 250) -- Below the UI
+	FloatingHandle.Position = UDim2.new(0.5, -60, 0, 0)
+	FloatingHandle.Visible = false
 	FloatingHandle.AnchorPoint = Vector2.new(0.5, 0.5)
 	FloatingHandle.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
 	FloatingHandle.BackgroundTransparency = 0.4
@@ -215,7 +218,6 @@ local function makeDraggable(targetFrame, handle)
 	end)
 end
 
-makeDraggable(MainFrame, TopbarButton)
 makeDraggable(MainFrame, DragHandleBottom)
 
 local dragging = false
@@ -294,9 +296,7 @@ local function switchTab(tabModule, btn)
 end
 
 local tabs = {
-	{ name = "Home", module = "UI/Tabs/Home/HomeTab" },
-	{ name = "AutoBuy", module = "UI/Tabs/AutoBuy/AutoBuyTab" },
-	{ name = "AutoCollect", module = "UI/Tabs/AutoCollect/AutoCollectTab" },
+	{ name = "Home", module = "UI/Tabs/Home/HomeTab" }
 }
 
 for _, tabInfo in ipairs(tabs) do
@@ -352,42 +352,26 @@ MinBtn.MouseButton1Click:Connect(function()
 		isMinimized = true
 		MinBtn.Text = "+"
 		TweenService:Create(MainFrame, TweenInfo.new(0.3), {
-			Size = UDim2.new(0, 620, 0, 40),
-			Position = MainFrame.Position + UDim2.new(0, 0, 0.46, 0)
+			Size = UDim2.new(0, 620, 0, 40)
 		}):Play()
 		ContentArea.Visible = false
 		TabBar.Visible = false
-		DragHandleTop.Visible = false
 		DragHandleBottom.Visible = false
 		FloatingHandle.Visible = false
 	else
 		isMinimized = false
 		MinBtn.Text = "-"
 		TweenService:Create(MainFrame, TweenInfo.new(0.3), {
-			Size = UDim2.new(0, 620, 0, 480),
-			Position = MainFrame.Position - UDim2.new(0, 0, 0.46, 0)
+			Size = UDim2.new(0, 620, 0, 480)
 		}):Play()
 		task.delay(0.3, function()
 			ContentArea.Visible = true
 			TabBar.Visible = true
 			DragHandleBottom.Visible = true
 			FloatingHandle.Visible = true
-		end)
-	end
-end)
-
-TopbarButton.MouseButton1Click:Connect(function()
-	if MainFrame.Size.Y.Offset == 40 then
-		TweenService:Create(MainFrame, TweenInfo.new(0.3), {
-			Size = UDim2.new(0, 620, 0, 480),
-			Position = MainFrame.Position - UDim2.new(0, 0, 0.46, 0)
-		}):Play()
-		task.delay(0.3, function()
-			ContentArea.Visible = true
-			TabBar.Visible = true
-			DragHandleBottom.Visible = true
-			MinBtn.Visible = true
-			FloatingHandle.Visible = true
+			task.delay(0.35, function()
+				FloatingHandle.Position = UDim2.new(0.5, -60, 0, MainFrame.AbsolutePosition.Y + MainFrame.AbsoluteSize.Y + 10)
+			end)
 		end)
 	end
 end)
@@ -408,7 +392,7 @@ local function checkForUpdates()
 	if success and result then
 		local latest = string.match(result, "[%d%.]+")
 		if latest then
-			local currentVersion = string.match(Title.Text, "Version:%s*(%d+%.%d+%.%d+)")
+			local currentVersion = Title.Text:match("Version:%s*([%d%.]+)")
 			Title.Text = "🌱 Bloom | Version: " .. latest .. " | Bloom Management Portal"
 
 			if currentVersion and latest ~= currentVersion then
@@ -437,7 +421,7 @@ FloatingHandle.Visible = false
 
 MainFrame.BackgroundTransparency = 1
 MainFrame.Size = UDim2.new(0, 100, 0, 50)
-MainFrame.Position = UDim2.new(0.5, -50, 0.5, -25)
+MainFrame.Position = UDim2.new(0.5, 0, 0.5, 0)
 
 TweenService:Create(MainFrame, TweenInfo.new(0.35, Enum.EasingStyle.Quad), {
 	Size = UDim2.new(0, 620, 0, 480),
