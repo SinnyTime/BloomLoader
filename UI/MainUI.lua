@@ -17,6 +17,7 @@ return function(Theme)
 	ScreenGui.Parent = safeParent
 
 	local MainFrame = Instance.new("Frame")
+	MainFrame.ZIndex = 1
 	MainFrame.Name = "MainFrame"
 	MainFrame.Size = UDim2.new(0, 620, 0, 480)
 	MainFrame.Position = UDim2.new(0.5, -310, 0.5, -240)
@@ -146,8 +147,7 @@ return function(Theme)
 	local FloatingHandle = Instance.new("TextButton")
 FloatingHandle.Name = "FloatingHandle"
 FloatingHandle.Size = UDim2.new(0, 120, 0, 6)
-FloatingHandle.Position = UDim2.new(0.5, -60, 0, 0)
-FloatingHandle.AnchorPoint = Vector2.new(0.5, 0.5)
+FloatingHandle.AnchorPoint = Vector2.new(0.5, 0)
 FloatingHandle.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
 FloatingHandle.BackgroundTransparency = 0.4
 FloatingHandle.Text = ""
@@ -217,25 +217,8 @@ end
 
 makeDraggable(MainFrame, TopbarButton)
 makeDraggable(MainFrame, FloatingHandle)
-addHoverEffect(FloatingHandle)
+makeDraggable(MainFrame, DragHandleBottom)
 
-local dragging = false
-local dragStart, startPos
-
-RunService = game:GetService("RunService")
-RunService.RenderStepped:Connect(function()
-	if dragging and dragStart and startPos then
-		local delta = UserInputService:GetMouseLocation() - dragStart
-		local newPos = UDim2.new(
-			startPos.X.Scale, startPos.X.Offset + delta.X,
-			startPos.Y.Scale, startPos.Y.Offset + delta.Y
-		)
-		-- Animate UI to follow bar
-		TweenService:Create(MainFrame, TweenInfo.new(0.25, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
-			Position = newPos
-		}):Play()
-	end
-end)
 
 local CurrentTab = nil
 	
@@ -337,7 +320,8 @@ MinBtn.MouseButton1Click:Connect(function()
 		MinBtn.Text = "+"
 		MainFrame.BackgroundColor3 = Theme.BackgroundColor
 		TweenService:Create(MainFrame, TweenInfo.new(0.3), {
-			Size = UDim2.new(0, 620, 0, 40)
+			Size = UDim2.new(0, 620, 0, 40),
+			BackgroundTransparency = 0
 		}):Play()
 		ContentArea.Visible = false
 		TabBar.Visible = false
@@ -346,13 +330,16 @@ MinBtn.MouseButton1Click:Connect(function()
 		MinBtn.Text = "-"
 		MainFrame.BackgroundColor3 = Theme.BackgroundColor
 		TweenService:Create(MainFrame, TweenInfo.new(0.3), {
-			Size = UDim2.new(0, 620, 0, 480)
+			Size = UDim2.new(0, 620, 0, 480),
+			BackgroundTransparency = 0
 		}):Play()
 		task.delay(0.3, function()
 			ContentArea.Visible = true
 			TabBar.Visible = true
+			task.delay(0.35, function()
 			FloatingHandle.Visible = true
-			FloatingHandle.Position = UDim2.new(0.5, -60, 0, MainFrame.AbsolutePosition.Y + MainFrame.AbsoluteSize.Y + 10)
+				FloatingHandle.Position = UDim2.new(0.5, -40, 0, MainFrame.AbsolutePosition.Y + MainFrame.AbsoluteSize.Y + 10)
+			end)
 		end)
 	end
 end)
@@ -422,11 +409,22 @@ MainFrame.BackgroundTransparency = 1
 MainFrame.Size = UDim2.new(0, 100, 0, 50)
 MainFrame.Position = UDim2.new(0.5, 0, 0.5, 0)
 
+FloatingHandle.Position = UDim2.new(0.5, -40, 0, MainFrame.AbsolutePosition.Y + MainFrame.AbsoluteSize.Y + 10)
+
 TweenService:Create(MainFrame, TweenInfo.new(0.35, Enum.EasingStyle.Quad), {
 	Size = UDim2.new(0, 620, 0, 480),
 	Position = UDim2.new(0.5, -310, 0.5, -240),
 	BackgroundTransparency = 0
 }):Play()
+
+-- Keep FloatingHandle positioned under MainFrame
+RunService = game:GetService("RunService")
+RunService.RenderStepped:Connect(function()
+	if FloatingHandle.Visible then
+		FloatingHandle.Position = UDim2.new(0.5, -40, 0, MainFrame.AbsolutePosition.Y + MainFrame.AbsoluteSize.Y + 10)
+	end
+end)
+
 
 return {
 	GUI = ScreenGui,
