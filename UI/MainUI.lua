@@ -6,6 +6,9 @@ return function(Theme)
 
 	local safeParent = gethui and gethui() or game:GetService("CoreGui") or LocalPlayer:WaitForChild("PlayerGui")
 
+	local existing = safeParent:FindFirstChild("BloomUI")
+	if existing then existing:Destroy() end
+	
 	local ScreenGui = Instance.new("ScreenGui")
 	ScreenGui.Name = "BloomUI"
 	ScreenGui.ResetOnSpawn = false
@@ -83,6 +86,8 @@ return function(Theme)
 	Topbar.Parent = MainFrame
 	
 	local TopbarButton = Instance.new("TextButton")
+	TopbarButton.Active = true
+	TopbarButton.AutoButtonColor = false
 	TopbarButton.Name = "TopbarButton"
 	TopbarButton.Size = UDim2.new(1, 0, 1, 0)
 	TopbarButton.BackgroundTransparency = 1
@@ -151,20 +156,6 @@ return function(Theme)
 	MinimizedFrame.Parent = ScreenGui
 	Instance.new("UICorner", MinimizedFrame).CornerRadius = Theme.CornerRadius
 
-	-- Bottom Drag Handle
-local DragHandleTop = Instance.new("TextButton")
-DragHandleTop.Size = UDim2.new(0, 100, 0, 5)
-DragHandleTop.Position = UDim2.new(0.5, -50, 1, 6)
-DragHandleTop.AnchorPoint = Vector2.new(0.5, 0)
-DragHandleTop.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-DragHandleTop.BackgroundTransparency = 0.2
-DragHandleTop.Text = ""
-DragHandleTop.AutoButtonColor = false
-DragHandleTop.ZIndex = 3
-DragHandleTop.Parent = MainFrame
-local CornerTop = Instance.new("UICorner", DragHandleTop)
-CornerTop.CornerRadius = UDim.new(1, 0)
-
 local DragHandleBottom = Instance.new("TextButton")
 DragHandleBottom.Size = UDim2.new(0, 100, 0, 5)
 DragHandleBottom.Position = UDim2.new(0.5, -50, 1, -5)
@@ -194,7 +185,6 @@ local function addHoverEffect(handle)
 	end)
 end
 
-addHoverEffect(DragHandleTop)
 addHoverEffect(DragHandleBottom)
 
 -- Dragging
@@ -226,7 +216,6 @@ local function makeDraggable(targetFrame, handle)
 end
 
 makeDraggable(MainFrame, TopbarButton)
-makeDraggable(MainFrame, DragHandleTop)
 makeDraggable(MainFrame, DragHandleBottom)
 
 local dragging = false
@@ -356,19 +345,35 @@ task.delay(0.35, function()
 end)
 
 -- Improved minimize/maximize
+local isMinimized = false
+
 MinBtn.MouseButton1Click:Connect(function()
-	TweenService:Create(MainFrame, TweenInfo.new(0.3), {
-		Size = UDim2.new(0, 620, 0, 40),
-		Position = MainFrame.Position + UDim2.new(0, 0, 0.46, 0)
-	}):Play()
-	ContentArea.Visible = false
-	FloatingHandle.Visible = false
-	ContentArea.Active = false
-	TabBar.Visible = false
-	TabBar.Active = false
-	DragHandleTop.Visible = false
-	DragHandleBottom.Visible = false
-	MinBtn.Visible = false
+	if not isMinimized then
+		isMinimized = true
+		MinBtn.Text = "+"
+		TweenService:Create(MainFrame, TweenInfo.new(0.3), {
+			Size = UDim2.new(0, 620, 0, 40),
+			Position = MainFrame.Position + UDim2.new(0, 0, 0.46, 0)
+		}):Play()
+		ContentArea.Visible = false
+		TabBar.Visible = false
+		DragHandleTop.Visible = false
+		DragHandleBottom.Visible = false
+		FloatingHandle.Visible = false
+	else
+		isMinimized = false
+		MinBtn.Text = "-"
+		TweenService:Create(MainFrame, TweenInfo.new(0.3), {
+			Size = UDim2.new(0, 620, 0, 480),
+			Position = MainFrame.Position - UDim2.new(0, 0, 0.46, 0)
+		}):Play()
+		task.delay(0.3, function()
+			ContentArea.Visible = true
+			TabBar.Visible = true
+			DragHandleBottom.Visible = true
+			FloatingHandle.Visible = true
+		end)
+	end
 end)
 
 TopbarButton.MouseButton1Click:Connect(function()
@@ -380,7 +385,6 @@ TopbarButton.MouseButton1Click:Connect(function()
 		task.delay(0.3, function()
 			ContentArea.Visible = true
 			TabBar.Visible = true
-			DragHandleTop.Visible = true
 			DragHandleBottom.Visible = true
 			MinBtn.Visible = true
 			FloatingHandle.Visible = true
@@ -427,7 +431,6 @@ task.spawn(function()
 	end
 end)
 
-DragHandleTop.Visible = true
 DragHandleBottom.Visible = true
 MainFrame.Visible = true
 FloatingHandle.Visible = false
