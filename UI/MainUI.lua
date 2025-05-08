@@ -175,9 +175,9 @@ return function(Theme)
 
 	local CurrentTab = nil
 	local tabs = {
-		{ name = "Home", module = "Tabs/Home/HomeTab" },
-		{ name = "AutoBuy", module = "Tabs/AutoBuy/AutoBuyTab" },
-		{ name = "AutoCollect", module = "Tabs/AutoCollect/AutoCollectTab" },
+	    { name = "Home", module = "UI/Tabs/Home/HomeTab" },
+	    { name = "AutoBuy", module = "UI/Tabs/AutoBuy/AutoBuyTab" },
+	    { name = "AutoCollect", module = "UI/Tabs/AutoCollect/AutoCollectTab" },
 	}
 
 	local function switchTab(tabModule)
