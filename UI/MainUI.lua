@@ -278,12 +278,13 @@ local function checkForUpdates()
 	if success and result then
 		local latest = string.match(result, "[%d%.]+")
 		if latest then
-			local currentVersion = Title.Text:match("Version:%s*([%d%.]+)") -- Capture BEFORE updating title
-			Title.Text = "🌱 Bloom | Version: " .. latest .. " | Bloom Management Portal"
-			CURRENT_VERSION = latest
-
-			if currentVersion and latest ~= currentVersion then
-				UpdateLabel.Text = "⚠️ v" .. latest .. " update"
+			if not CURRENT_VERSION then
+				CURRENT_VERSION = latest
+				Title.Text = "🌱 Bloom | Version: " .. latest .. " | Bloom Management Portal"
+				UpdateLabel.Text = "✅ Bloom is up to date!"
+				UpdateLabel.TextColor3 = Color3.fromRGB(100, 255, 100)
+			elseif CURRENT_VERSION ~= latest then
+				UpdateLabel.Text = "Update available: v" .. latest
 				UpdateLabel.TextColor3 = Color3.fromRGB(255, 100, 100)
 
 				local reloadClick = Instance.new("TextButton")
@@ -297,9 +298,6 @@ local function checkForUpdates()
 					ScreenGui:Destroy()
 					loadstring(game:HttpGet("https://raw.githubusercontent.com/SinnyTime/GaGv2/main/Main.lua"))()
 				end)
-			else
-				UpdateLabel.Text = "✅ Bloom is up to date!"
-				UpdateLabel.TextColor3 = Color3.fromRGB(100, 255, 100)
 			end
 		else
 			UpdateLabel.Text = "⚠️ Error reading version"
