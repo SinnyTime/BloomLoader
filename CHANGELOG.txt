@@ -1,0 +1,3 @@
+- Working on the UI Design
+- Changing bottom drag bar to ACTUALLY work properly
+- Animations to make it pretty and unique
