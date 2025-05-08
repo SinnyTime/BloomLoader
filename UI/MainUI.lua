@@ -66,7 +66,9 @@ return function(Theme)
 	CloseBtn.Font = Theme.Font
 	CloseBtn.TextSize = 14
 	CloseBtn.Parent = Topbar
-	Instance.new("UICorner", CloseBtn).CornerRadius = Theme.CornerRadius
+	local UICorner = Instance.new("UICorner")
+	UICorner.CornerRadius = Theme.CornerRadius
+	UICorner.Parent = CloseBtn
 
 	local MinBtn = Instance.new("TextButton")
 	MinBtn.Size = UDim2.new(0, 24, 0, 24)
@@ -82,16 +84,17 @@ return function(Theme)
 	local UpdateLabel = Instance.new("TextLabel")
 	UpdateLabel.Name = "UpdateLabel"
 	UpdateLabel.Size = UDim2.new(0, 200, 1, 0)
-	UpdateLabel.Position = UDim2.new(0, 260, 0, 0)
+	UpdateLabel.Position = UDim2.new(1, -290, 0, 0)
+	UpdateLabel.TextXAlignment = Enum.TextXAlignment.Right
+	UpdateLabel.TextWrapped = true
 	UpdateLabel.BackgroundTransparency = 1
 	UpdateLabel.TextColor3 = Color3.fromRGB(255, 200, 50)
 	UpdateLabel.TextSize = 14
 	UpdateLabel.Font = Theme.Font
-	UpdateLabel.TextXAlignment = Enum.TextXAlignment.Left
 	UpdateLabel.Text = ""
 	UpdateLabel.Parent = Topbar
 
-		local MinimizedFrame = Instance.new("TextButton")
+	local MinimizedFrame = Instance.new("TextButton")
 	MinimizedFrame.Text = "🌱 Bloom"
 	MinimizedFrame.Size = UDim2.new(0, 180, 0, 40)
 	MinimizedFrame.Position = UDim2.new(0.5, -90, 0.5, -20)
@@ -161,7 +164,7 @@ return function(Theme)
 				local delta = input.Position - dragStart
 				targetFrame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X,
 					startPos.Y.Scale, startPos.Y.Offset + delta.Y)
-				DragHandle.Position = UDim2.new(0.5, -50, 0, targetFrame.AbsolutePosition.Y + targetFrame.AbsoluteSize.Y + 6)
+				DragHandle.Position = UDim2.new(0.5, -50, 1, 6)
 			end
 		end)
 	end
@@ -169,27 +172,53 @@ return function(Theme)
 	makeDraggable(MainFrame, Topbar)
 	makeDraggable(MainFrame, DragHandle)
 
+	CloseBtn.MouseButton1Click:Connect(function()
+		MainFrame.Visible = false
+		DragHandle.Visible = false
+		ScreenGui:Destroy()
+	end)
+	
+	MinBtn.MouseButton1Click:Connect(function()
+		MinimizedFrame.Position = MainFrame.Position + UDim2.new(0, 0, 0, 240)
+		MainFrame.Visible = false
+		DragHandle.Visible = false
+		MinimizedFrame.Visible = true
+	end)
+	
+	MinimizedFrame.MouseButton1Click:Connect(function()
+		MainFrame.Position = MinimizedFrame.Position - UDim2.new(0, 0, 0, 240)
+		MainFrame.Visible = true
+		DragHandle.Visible = true
+		MinimizedFrame.Visible = false
+	end)
+
 	-- Update check loop
 	local function updateVersionLabel(version)
 		Title.Text = "🌱 Bloom | Version: " .. version .. " | Bloom Management Portal"
 	end
 
 	local function checkForUpdates()
-		local success, result = pcall(function()
-			return game:HttpGet("https://raw.githubusercontent.com/SinnyTime/GaGv2/main/VERSION.txt")
-		end)
+	local success, result = pcall(function()
+		return game:HttpGet("https://raw.githubusercontent.com/SinnyTime/GaGv2/main/VERSION.txt")
+	end)
 
-		if success and result then
-			local latest = string.match(result, "[%d%.]+")
-			if latest then
-				updateVersionLabel(latest)
-				if latest ~= "2.0.02" then
-					UpdateLabel.Text = "⚠️ Update " .. latest .. " available"
-				else
-					UpdateLabel.Text = ""
-				end
+	if success and result then
+		local latest = string.match(result, "[%d%.]+")
+		if latest then
+			local currentVersion = string.match(Title.Text, "Version:%s*(%d+%.%d+%.%d+)")
+			Title.Text = "🌱 Bloom | Version: " .. latest .. " | Bloom Management Portal"
+
+			if currentVersion and latest ~= currentVersion then
+				UpdateLabel.Text = "⚠️ Update " .. latest .. " available"
+			else
+				UpdateLabel.Text = ""
 			end
+		else
+			UpdateLabel.Text = "⚠️ Error reading version"
 		end
+	else
+		UpdateLabel.Text = "⚠️ Failed to check updates"
+	end
 	end
 
 	task.spawn(function()
