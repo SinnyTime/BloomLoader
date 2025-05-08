@@ -399,7 +399,7 @@ local function checkForUpdates()
 				
 				reloadClick.MouseButton1Click:Connect(function()
 					ScreenGui:Destroy()
-					loadstring(game:HttpGet("https://raw.githubusercontent.com/SinnyTime/GaGv2/main/UI/init.lua"))()(Theme)
+					loadstring(game:HttpGet("https://raw.githubusercontent.com/SinnyTime/GaGv2/main/Main.lua"))()(Theme)
 				end)
 			else
 				UpdateLabel.Text = "✅ Bloom is up to date!"
