@@ -2,6 +2,7 @@ return function(Theme)
 	local Players = game:GetService("Players")
 	local LocalPlayer = Players.LocalPlayer
 	local TweenService = game:GetService("TweenService")
+	local UserInputService = game:GetService("UserInputService")
 
 	local safeParent = gethui and gethui() or game:GetService("CoreGui") or LocalPlayer:WaitForChild("PlayerGui")
 
@@ -35,6 +36,7 @@ return function(Theme)
 		}):Play()
 	end)
 
+	-- 💻 Topbar
 	local Topbar = Instance.new("Frame")
 	Topbar.Name = "Topbar"
 	Topbar.Size = UDim2.new(1, 0, 0, 40)
@@ -59,7 +61,7 @@ return function(Theme)
 	CloseBtn.Size = UDim2.new(0, 24, 0, 24)
 	CloseBtn.Position = UDim2.new(1, -30, 0, 8)
 	CloseBtn.BackgroundColor3 = Color3.fromRGB(180, 50, 50)
-	CloseBtn.Text = "✕"
+	CloseBtn.Text = "X"
 	CloseBtn.TextColor3 = Color3.new(1, 1, 1)
 	CloseBtn.Font = Theme.Font
 	CloseBtn.TextSize = 14
@@ -107,6 +109,32 @@ return function(Theme)
 		MinimizedFrame.Visible = false
 	end)
 
+	-- 🧲 Drag support (MainFrame & MinimizedFrame)
+	local function makeDraggable(frame)
+		local dragging, dragStart, startPos
+		frame.InputBegan:Connect(function(input)
+			if input.UserInputType == Enum.UserInputType.MouseButton1 then
+				dragging = true
+				dragStart = input.Position
+				startPos = frame.Position
+				input.Changed:Connect(function()
+					if input.UserInputState == Enum.UserInputState.End then dragging = false end
+				end)
+			end
+		end)
+
+		frame.InputChanged:Connect(function(input)
+			if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
+				local delta = input.Position - dragStart
+				frame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+			end
+		end)
+	end
+
+	makeDraggable(MainFrame)
+	makeDraggable(MinimizedFrame)
+
+	-- Sidebar + Tabs
 	local TabBar = Instance.new("Frame")
 	TabBar.Name = "TabBar"
 	TabBar.Size = UDim2.new(0, 130, 1, -40)
