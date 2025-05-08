@@ -144,7 +144,7 @@ return function(Theme)
 	MinimizedFrame.Parent = ScreenGui
 	Instance.new("UICorner", MinimizedFrame).CornerRadius = Theme.CornerRadius
 
-	local FloatingHandle = Instance.new("TextButton")
+local FloatingHandle = Instance.new("TextButton")
 FloatingHandle.Name = "FloatingHandle"
 FloatingHandle.Size = UDim2.new(0, 120, 0, 6)
 FloatingHandle.AnchorPoint = Vector2.new(0.5, 0)
@@ -152,24 +152,20 @@ FloatingHandle.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
 FloatingHandle.BackgroundTransparency = 0.4
 FloatingHandle.Text = ""
 FloatingHandle.AutoButtonColor = false
-FloatingHandle.ZIndex = 3
-FloatingHandle.Visible = false
+FloatingHandle.ZIndex = 2
 FloatingHandle.Parent = ScreenGui
 Instance.new("UICorner", FloatingHandle).CornerRadius = UDim.new(1, 0)
 
-
-local DragHandleBottom = Instance.new("TextButton")
-DragHandleBottom.Size = UDim2.new(0, 100, 0, 5)
-DragHandleBottom.Position = UDim2.new(0.5, -50, 1, -5)
-DragHandleBottom.AnchorPoint = Vector2.new(0.5, 1)
-DragHandleBottom.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-DragHandleBottom.BackgroundTransparency = 0.2
-DragHandleBottom.Text = ""
-DragHandleBottom.AutoButtonColor = false
-DragHandleBottom.ZIndex = 3
-DragHandleBottom.Parent = MainFrame
-local CornerBottom = Instance.new("UICorner", DragHandleBottom)
-CornerBottom.CornerRadius = UDim.new(1, 0)
+-- Reposition bar every frame
+RunService = game:GetService("RunService")
+RunService.RenderStepped:Connect(function()
+	if MainFrame.Visible and not isMinimized then
+		FloatingHandle.Visible = true
+		FloatingHandle.Position = UDim2.new(0.5, 0, 0, MainFrame.AbsolutePosition.Y + MainFrame.AbsoluteSize.Y + 8)
+	else
+		FloatingHandle.Visible = false
+	end
+end)
 
 -- Drag hover effects
 local function addHoverEffect(handle)
@@ -181,7 +177,7 @@ local function addHoverEffect(handle)
 	end)
 	handle.MouseLeave:Connect(function()
 		TweenService:Create(handle, TweenInfo.new(0.15), {
-			Size = UDim2.new(0, 100, 0, 5),
+			Size = UDim2.new(0, 120, 0, 6),
 			BackgroundTransparency = 0.2
 		}):Play()
 	end)
@@ -217,7 +213,8 @@ end
 
 makeDraggable(MainFrame, TopbarButton)
 makeDraggable(MainFrame, FloatingHandle)
-makeDraggable(MainFrame, DragHandleBottom)
+addHoverEffect(FloatingHandle)
+addHoverEffect(TopbarButton)
 
 
 local CurrentTab = nil
@@ -338,7 +335,6 @@ MinBtn.MouseButton1Click:Connect(function()
 			TabBar.Visible = true
 			task.delay(0.35, function()
 			FloatingHandle.Visible = true
-				FloatingHandle.Position = UDim2.new(0.5, -40, 0, MainFrame.AbsolutePosition.Y + MainFrame.AbsoluteSize.Y + 10)
 			end)
 		end)
 	end
@@ -408,8 +404,6 @@ MainFrame.BackgroundColor3 = Theme.BackgroundColor
 MainFrame.BackgroundTransparency = 1
 MainFrame.Size = UDim2.new(0, 100, 0, 50)
 MainFrame.Position = UDim2.new(0.5, 0, 0.5, 0)
-
-FloatingHandle.Position = UDim2.new(0.5, -40, 0, MainFrame.AbsolutePosition.Y + MainFrame.AbsoluteSize.Y + 10)
 
 TweenService:Create(MainFrame, TweenInfo.new(0.35, Enum.EasingStyle.Quad), {
 	Size = UDim2.new(0, 620, 0, 480),
