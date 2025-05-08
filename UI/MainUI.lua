@@ -55,7 +55,7 @@ return function(Theme)
 	Title.TextSize = 16
 	Title.TextColor3 = Theme.TextColor
 	Title.TextXAlignment = Enum.TextXAlignment.Left
-	Title.Text = "🌱 Bloom | Version: 2.0.0 | Bloom Management Portal"
+	Title.Text = "🌱 Bloom | Version: 2.0.01 | Bloom Management Portal"
 	Title.Parent = Topbar
 
 	local CloseBtn = Instance.new("TextButton")
