@@ -270,24 +270,30 @@ return function(Theme)
 
 	-- Update Check System
 	local function checkForUpdates()
-		local success, result = pcall(function()
-			return game:HttpGet("https://raw.githubusercontent.com/SinnyTime/GaGv2/main/VERSION.txt")
-		end)
+	local success, result = pcall(function()
+		return game:HttpGet("https://raw.githubusercontent.com/SinnyTime/GaGv2/main/VERSION.txt")
+	end)
 
-		if success and result then
-			local latest = string.match(result, "[%d%.]+")
-			if latest then
-				Title.Text = "🌱 Bloom | Version: " .. latest .. " | Bloom Management Portal"
+	if success and result then
+		local latest = string.match(result, "[%d%.]+")
+		if latest then
+			-- Show latest version in UI
+			Title.Text = "🌱 Bloom | Version: " .. latest .. " | Bloom Management Portal"
 
+			-- Compare with self-loaded version
+			local loadedFrom = getfenv(1).script or "unknown"
+			local isMainScript = tostring(loadedFrom):lower():find("main.lua")
+
+			if isMainScript then
+				UpdateLabel.Text = "✅ Bloom is up to date!"
+				UpdateLabel.TextColor3 = Color3.fromRGB(100, 255, 100)
+				UpdateLabel.TextSize = 14
+				UpdateLabel.TextScaled = false
+			else
 				UpdateLabel.Text = "⚠️ v" .. latest .. " update"
 				UpdateLabel.TextColor3 = Color3.fromRGB(255, 100, 100)
-				UpdateLabel.TextXAlignment = Enum.TextXAlignment.Center
-				UpdateLabel.TextScaled = true
-				UpdateLabel.Font = Theme.Font
-				UpdateLabel.TextWrapped = true
-				UpdateLabel.TextSize = 10
-				UpdateLabel.TextStrokeTransparency = 0.5
-				UpdateLabel.TextTransparency = 0
+				UpdateLabel.TextSize = 12
+				UpdateLabel.TextScaled = false
 
 				local reloadClick = Instance.new("TextButton")
 				reloadClick.BackgroundTransparency = 1
@@ -300,13 +306,14 @@ return function(Theme)
 					ScreenGui:Destroy()
 					loadstring(game:HttpGet("https://raw.githubusercontent.com/SinnyTime/GaGv2/main/Main.lua"))()
 				end)
-			else
-				UpdateLabel.Text = "✅ Bloom is up to date!"
 			end
 		else
-			UpdateLabel.Text = "⚠️ Failed to check updates"
+			UpdateLabel.Text = "⚠️ Error reading version"
 		end
+	else
+		UpdateLabel.Text = "⚠️ Failed to check updates"
 	end
+end
 
 	task.spawn(function()
 		while true do
