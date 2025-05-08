@@ -9,7 +9,9 @@ return function(Theme)
 	ScreenGui.ResetOnSpawn = false
 	ScreenGui.IgnoreGuiInset = true
 	ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
-	ScreenGui.Parent = LocalPlayer:WaitForChild("PlayerGui")
+	local safeParent = gethui and gethui() or game:GetService("CoreGui") or LocalPlayer:WaitForChild("PlayerGui")
+	ScreenGui.Parent = safeParent
+
 
 	local MainFrame = Instance.new("Frame")
 	MainFrame.Name = "MainFrame"
