@@ -8,8 +8,6 @@ return function(Theme)
 
 	local existing = safeParent:FindFirstChild("BloomUI")
 	if existing then existing:Destroy() end
-	local oldHandle = safeParent:FindFirstChild("FloatingHandle")
-	if oldHandle then oldHandle:Destroy() end
 	
 	local ScreenGui = Instance.new("ScreenGui")
 	ScreenGui.Name = "BloomUI"
@@ -29,20 +27,6 @@ return function(Theme)
 	MainFrame.ClipsDescendants = true
 	MainFrame.Parent = ScreenGui
 	Instance.new("UICorner", MainFrame).CornerRadius = Theme.CornerRadius
-
-	-- Animated Drag Handle Below UI
-	local FloatingHandle = Instance.new("TextButton")
-	FloatingHandle.Size = UDim2.new(0, 120, 0, 6)
-	FloatingHandle.Position = UDim2.new(0.5, -60, 0, 0)
-	FloatingHandle.Visible = false
-	FloatingHandle.AnchorPoint = Vector2.new(0.5, 0.5)
-	FloatingHandle.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-	FloatingHandle.BackgroundTransparency = 0.4
-	FloatingHandle.Text = ""
-	FloatingHandle.AutoButtonColor = false
-	FloatingHandle.ZIndex = 3
-	FloatingHandle.Parent = ScreenGui
-	Instance.new("UICorner", FloatingHandle).CornerRadius = UDim.new(1, 0)
 
 	-- Create TabBar and ContentArea
 	local TabBar = Instance.new("Frame")
@@ -159,6 +143,21 @@ return function(Theme)
 	MinimizedFrame.Parent = ScreenGui
 	Instance.new("UICorner", MinimizedFrame).CornerRadius = Theme.CornerRadius
 
+	local FloatingHandle = Instance.new("TextButton")
+FloatingHandle.Name = "FloatingHandle"
+FloatingHandle.Size = UDim2.new(0, 120, 0, 6)
+FloatingHandle.Position = UDim2.new(0.5, -60, 0, 0)
+FloatingHandle.AnchorPoint = Vector2.new(0.5, 0.5)
+FloatingHandle.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+FloatingHandle.BackgroundTransparency = 0.4
+FloatingHandle.Text = ""
+FloatingHandle.AutoButtonColor = false
+FloatingHandle.ZIndex = 3
+FloatingHandle.Visible = false
+FloatingHandle.Parent = ScreenGui
+Instance.new("UICorner", FloatingHandle).CornerRadius = UDim.new(1, 0)
+
+
 local DragHandleBottom = Instance.new("TextButton")
 DragHandleBottom.Size = UDim2.new(0, 100, 0, 5)
 DragHandleBottom.Position = UDim2.new(0.5, -50, 1, -5)
@@ -219,23 +218,12 @@ local function makeDraggable(targetFrame, handle)
 end
 
 makeDraggable(MainFrame, DragHandleBottom)
+makeDraggable(MainFrame, TopbarButton)
+makeDraggable(MainFrame, FloatingHandle)
+addHoverEffect(FloatingHandle)
 
 local dragging = false
 local dragStart, startPos
-
-FloatingHandle.InputBegan:Connect(function(input)
-	if input.UserInputType == Enum.UserInputType.MouseButton1 then
-		dragging = true
-		dragStart = input.Position
-		startPos = MainFrame.Position
-	end
-end)
-
-UserInputService.InputEnded:Connect(function(input)
-	if input.UserInputType == Enum.UserInputType.MouseButton1 then
-		dragging = false
-	end
-end)
 
 RunService = game:GetService("RunService")
 RunService.RenderStepped:Connect(function()
@@ -249,8 +237,6 @@ RunService.RenderStepped:Connect(function()
 		TweenService:Create(MainFrame, TweenInfo.new(0.25, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
 			Position = newPos
 		}):Play()
-		-- Snap bar to stay under frame
-		FloatingHandle.Position = UDim2.new(0.5, -60, 0, MainFrame.AbsolutePosition.Y + MainFrame.AbsoluteSize.Y + 10)
 	end
 end)
 
@@ -350,6 +336,7 @@ local isMinimized = false
 MinBtn.MouseButton1Click:Connect(function()
 	if not isMinimized then
 		isMinimized = true
+		FloatingHandle.Visible = false
 		MinBtn.Text = "+"
 		TweenService:Create(MainFrame, TweenInfo.new(0.3), {
 			Size = UDim2.new(0, 620, 0, 40)
@@ -357,7 +344,6 @@ MinBtn.MouseButton1Click:Connect(function()
 		ContentArea.Visible = false
 		TabBar.Visible = false
 		DragHandleBottom.Visible = false
-		FloatingHandle.Visible = false
 	else
 		isMinimized = false
 		MinBtn.Text = "-"
@@ -369,9 +355,7 @@ MinBtn.MouseButton1Click:Connect(function()
 			TabBar.Visible = true
 			DragHandleBottom.Visible = true
 			FloatingHandle.Visible = true
-			task.delay(0.35, function()
-				FloatingHandle.Position = UDim2.new(0.5, -60, 0, MainFrame.AbsolutePosition.Y + MainFrame.AbsoluteSize.Y + 10)
-			end)
+			FloatingHandle.Position = UDim2.new(0.5, -60, 0, MainFrame.AbsolutePosition.Y + MainFrame.AbsoluteSize.Y + 10)
 		end)
 	end
 end)
@@ -396,7 +380,27 @@ local function checkForUpdates()
 			Title.Text = "🌱 Bloom | Version: " .. latest .. " | Bloom Management Portal"
 
 			if currentVersion and latest ~= currentVersion then
-				UpdateLabel.Text = "⚠️ Update " .. latest .. " available"
+				UpdateLabel.Text = "⚠️ Update " .. latest .. " available - Click to reload"
+				UpdateLabel.TextColor3 = Color3.fromRGB(255, 100, 100)
+				UpdateLabel.TextXAlignment = Enum.TextXAlignment.Center
+				UpdateLabel.TextScaled = true
+				UpdateLabel.Font = Theme.Font
+				UpdateLabel.TextWrapped = true
+				UpdateLabel.TextSize = 14
+				UpdateLabel.TextStrokeTransparency = 0.5
+				UpdateLabel.TextTransparency = 0
+				
+				local reloadClick = Instance.new("TextButton")
+				reloadClick.BackgroundTransparency = 1
+				reloadClick.Size = UpdateLabel.Size
+				reloadClick.Position = UpdateLabel.Position
+				reloadClick.Text = ""
+				reloadClick.Parent = Topbar
+				
+				reloadClick.MouseButton1Click:Connect(function()
+					ScreenGui:Destroy()
+					loadstring(game:HttpGet("https://raw.githubusercontent.com/SinnyTime/GaGv2/main/UI/init.lua"))()(Theme)
+				end)
 			else
 				UpdateLabel.Text = "✅ Bloom is up to date!"
 			end
@@ -417,8 +421,7 @@ end)
 
 DragHandleBottom.Visible = true
 MainFrame.Visible = true
-FloatingHandle.Visible = false
-
+MainFrame.BackgroundColor3 = Theme.BackgroundColor
 MainFrame.BackgroundTransparency = 1
 MainFrame.Size = UDim2.new(0, 100, 0, 50)
 MainFrame.Position = UDim2.new(0.5, 0, 0.5, 0)
@@ -428,11 +431,6 @@ TweenService:Create(MainFrame, TweenInfo.new(0.35, Enum.EasingStyle.Quad), {
 	Position = UDim2.new(0.5, -310, 0.5, -240),
 	BackgroundTransparency = 0
 }):Play()
-
-task.delay(0.4, function()
-	FloatingHandle.Position = UDim2.new(0.5, -60, 0, MainFrame.AbsolutePosition.Y + MainFrame.AbsoluteSize.Y + 10)
-	FloatingHandle.Visible = true
-end)
 
 return {
 	GUI = ScreenGui,
