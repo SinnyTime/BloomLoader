@@ -17,12 +17,50 @@ return function(Theme)
 	MainFrame.Name = "MainFrame"
 	MainFrame.Size = UDim2.new(0, 620, 0, 480)
 	MainFrame.Position = UDim2.new(0.5, -310, 0.5, -240)
+	MainFrame.AnchorPoint = Vector2.new(0.5, 0.5)
 	MainFrame.BackgroundColor3 = Theme.BackgroundColor
 	MainFrame.BorderSizePixel = 0
-	MainFrame.AnchorPoint = Vector2.new(0.5, 0.5)
 	MainFrame.Visible = false
 	MainFrame.Parent = ScreenGui
 	Instance.new("UICorner", MainFrame).CornerRadius = Theme.CornerRadius
+
+	-- Bottom Drag Handle
+	local DragHandle = Instance.new("Frame")
+	DragHandle.Size = UDim2.new(0, 100, 0, 5)
+	DragHandle.Position = UDim2.new(0.5, -50, 1, -6)
+	DragHandle.AnchorPoint = Vector2.new(0.5, 1)
+	DragHandle.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+	DragHandle.BackgroundTransparency = 0.2
+	DragHandle.ZIndex = 3
+	DragHandle.Parent = MainFrame
+	Instance.new("UICorner", DragHandle).CornerRadius = UDim.new(1, 0)
+
+	-- Dragging Logic (global mouse-based)
+	local function makeDraggable(frame)
+		local dragging = false
+		local dragStart, startPos
+
+		frame.InputBegan:Connect(function(input)
+			if input.UserInputType == Enum.UserInputType.MouseButton1 then
+				dragging = true
+				dragStart = input.Position
+				startPos = frame.Position
+				input.Changed:Connect(function()
+					if input.UserInputState == Enum.UserInputState.End then
+						dragging = false
+					end
+				end)
+			end
+		end)
+
+		UserInputService.InputChanged:Connect(function(input)
+			if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
+				local delta = input.Position - dragStart
+				frame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X,
+					startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+			end
+		end)
+	end
 
 	task.delay(0.05, function()
 		MainFrame.Visible = true
@@ -36,7 +74,7 @@ return function(Theme)
 		}):Play()
 	end)
 
-	-- 💻 Topbar
+	-- Topbar
 	local Topbar = Instance.new("Frame")
 	Topbar.Name = "Topbar"
 	Topbar.Size = UDim2.new(1, 0, 0, 40)
@@ -82,8 +120,8 @@ return function(Theme)
 	local MinimizedFrame = Instance.new("TextButton")
 	MinimizedFrame.Text = "🌱 Bloom"
 	MinimizedFrame.Size = UDim2.new(0, 180, 0, 40)
-	MinimizedFrame.Position = UDim2.new(0, 20, 1, -50)
-	MinimizedFrame.AnchorPoint = Vector2.new(0, 1)
+	MinimizedFrame.Position = UDim2.new(0.5, -90, 0.5, -20)
+	MinimizedFrame.AnchorPoint = Vector2.new(0.5, 0.5)
 	MinimizedFrame.BackgroundColor3 = Theme.SectionColor
 	MinimizedFrame.TextColor3 = Theme.TextColor
 	MinimizedFrame.Font = Theme.Font
@@ -92,61 +130,24 @@ return function(Theme)
 	MinimizedFrame.Parent = ScreenGui
 	Instance.new("UICorner", MinimizedFrame).CornerRadius = Theme.CornerRadius
 
-
 	CloseBtn.MouseButton1Click:Connect(function()
-		TweenService:Create(MainFrame, TweenInfo.new(0.25), { BackgroundTransparency = 1 }):Play()
-		MainFrame:TweenSize(UDim2.new(0, 0, 0, 0), Enum.EasingDirection.In, Enum.EasingStyle.Quad, 0.25, true, function()
-			ScreenGui:Destroy()
-		end)
+		MainFrame.Visible = false
+		ScreenGui:Destroy()
 	end)
 
 	MinBtn.MouseButton1Click:Connect(function()
+		MinimizedFrame.Position = MainFrame.Position + UDim2.new(0, 0, 0, 240)
 		MainFrame.Visible = false
 		MinimizedFrame.Visible = true
 	end)
 
 	MinimizedFrame.MouseButton1Click:Connect(function()
+		MainFrame.Position = MinimizedFrame.Position - UDim2.new(0, 0, 0, 240)
 		MainFrame.Visible = true
 		MinimizedFrame.Visible = false
 	end)
 
-	-- 🧲 Drag support (MainFrame & MinimizedFrame)
-	local function makeDraggable(frame)
-		local dragging, dragStart, startPos
-		frame.InputBegan:Connect(function(input)
-			if input.UserInputType == Enum.UserInputType.MouseButton1 then
-				dragging = true
-				dragStart = input.Position
-				startPos = frame.Position
-				input.Changed:Connect(function()
-					if input.UserInputState == Enum.UserInputState.End then dragging = false end
-				end)
-			end
-		end)
-
-		frame.InputChanged:Connect(function(input)
-			if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
-				local delta = input.Position - dragStart
-				frame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
-			end
-		end)
-	end
-
-	-- Bottom Drag Bar
-	local DragHandle = Instance.new("Frame")
-	DragHandle.Size = UDim2.new(0, 100, 0, 5)
-	DragHandle.Position = UDim2.new(0.5, -50, 1, -8)
-	DragHandle.AnchorPoint = Vector2.new(0.5, 1)
-	DragHandle.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-	DragHandle.BackgroundTransparency = 0.2
-	DragHandle.Parent = MainFrame
-	Instance.new("UICorner", DragHandle).CornerRadius = UDim.new(1, 0)
-
-	makeDraggable(MainFrame)
-	makeDraggable(MinimizedFrame)
-	makeDraggable(DragHandle)
-
-	-- Sidebar + Tabs
+	-- Sidebar & Tabs
 	local TabBar = Instance.new("Frame")
 	TabBar.Name = "TabBar"
 	TabBar.Size = UDim2.new(0, 130, 1, -40)
@@ -232,7 +233,13 @@ return function(Theme)
 		end)
 	end
 
+	-- Load Default Tab
 	switchTab("Tabs/Home/HomeTab")
+
+	-- Enable dragging
+	makeDraggable(MainFrame)
+	makeDraggable(MinimizedFrame)
+	makeDraggable(DragHandle)
 
 	return {
 		GUI = ScreenGui,
