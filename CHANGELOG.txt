@@ -1,5 +1,6 @@
 [2.0.2] - 2025-05-08
-🖱️ Update alert is now clickable to auto-reload the latest UI
-♻️ Instantly destroys and reinstalls Bloom UI with new code
-📦 Modular loading improved for future tabs and update scaling
-🎯 Ensured perfect update detection with version text parsing
+
+- The update alert is now clickable to reload the UI automatically
+- Bloom UI now reinstalls itself instantly when updates are applied
+- Modular loading improved for future tabs and version scalability
+- Version parsing fixed to ensure accurate update detection
