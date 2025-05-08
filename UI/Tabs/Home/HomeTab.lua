@@ -1,29 +1,26 @@
--- Tabs/Home/HomeTab.lua
 return function(parent, theme)
 	local TweenService = game:GetService("TweenService")
 
-	-- Clear existing tab content (except UICorner)
 	for _, child in ipairs(parent:GetChildren()) do
 		if not child:IsA("UICorner") then
 			child:Destroy()
 		end
 	end
 
-	-- Container frame
 	local container = Instance.new("Frame")
+	container.Name = "HomeContainer"
 	container.Size = UDim2.new(1, 0, 1, 0)
 	container.BackgroundTransparency = 1
-	container.Name = "HomeContainer"
 	container.Parent = parent
 
 	local layout = Instance.new("UIListLayout")
-	layout.Padding = UDim.new(0, 12)
+	layout.Padding = UDim.new(0, 10)
 	layout.HorizontalAlignment = Enum.HorizontalAlignment.Center
 	layout.VerticalAlignment = Enum.VerticalAlignment.Center
 	layout.SortOrder = Enum.SortOrder.LayoutOrder
 	layout.Parent = container
 
-	-- 🌿 Title
+	-- 🌱 Title
 	local title = Instance.new("TextLabel")
 	title.Text = "🌱 Bloom"
 	title.Font = theme.Font
@@ -32,13 +29,12 @@ return function(parent, theme)
 	title.BackgroundTransparency = 1
 	title.Size = UDim2.new(0, 480, 0, 40)
 	title.TextXAlignment = Enum.TextXAlignment.Center
-	title.TextYAlignment = Enum.TextYAlignment.Center
 	title.TextTransparency = 1
 	title.Parent = container
 
-	-- 💬 Subtitle
+	-- Subtitle (we’ll update this later with actual version info)
 	local subtitle = Instance.new("TextLabel")
-	subtitle.Text = "Welcome to Bloom v2.0.0"
+	subtitle.Text = "Fetching version..."
 	subtitle.Font = theme.Font
 	subtitle.TextSize = 20
 	subtitle.TextColor3 = theme.TextColor
@@ -48,17 +44,16 @@ return function(parent, theme)
 	subtitle.TextTransparency = 1
 	subtitle.Parent = container
 
-	-- 📖 Description
-	local description = Instance.new("TextLabel")
-	description.Text = "Your all-in-one automation toolkit for Grow a Garden."
-	description.Font = theme.Font
-	description.TextSize = 16
-	description.TextColor3 = theme.TextColor
-	description.BackgroundTransparency = 1
-	description.Size = UDim2.new(0, 500, 0, 24)
-	description.TextXAlignment = Enum.TextXAlignment.Center
-	description.TextTransparency = 1
-	description.Parent = container
+	local desc = Instance.new("TextLabel")
+	desc.Text = "Your all-in-one automation toolkit for Grow a Garden."
+	desc.Font = theme.Font
+	desc.TextSize = 16
+	desc.TextColor3 = theme.TextColor
+	desc.BackgroundTransparency = 1
+	desc.Size = UDim2.new(0, 500, 0, 24)
+	desc.TextXAlignment = Enum.TextXAlignment.Center
+	desc.TextTransparency = 1
+	desc.Parent = container
 
 	-- Spacer
 	local spacer = Instance.new("Frame")
@@ -66,38 +61,93 @@ return function(parent, theme)
 	spacer.BackgroundTransparency = 1
 	spacer.Parent = container
 
-	-- ℹ️ Version Info
-	local infoLines = {
-		"🛠️ Script Version: 2.0.0",
-		"📅 Updated: May 7, 2025",
-		"👤 Made by: SinnyTime"
-	}
+	-- ℹ️ Info Labels (dynamic)
+	local versionInfo = Instance.new("TextLabel")
+	versionInfo.Text = "🛠️ Loading version..."
+	versionInfo.Font = theme.Font
+	versionInfo.TextSize = 14
+	versionInfo.TextColor3 = theme.TextColor
+	versionInfo.BackgroundTransparency = 1
+	versionInfo.Size = UDim2.new(0, 400, 0, 20)
+	versionInfo.TextXAlignment = Enum.TextXAlignment.Center
+	versionInfo.TextTransparency = 1
+	versionInfo.Parent = container
 
-	for _, text in ipairs(infoLines) do
-		local label = Instance.new("TextLabel")
-		label.Text = text
-		label.Font = theme.Font
-		label.TextSize = 14
-		label.TextColor3 = theme.TextColor
-		label.BackgroundTransparency = 1
-		label.Size = UDim2.new(0, 400, 0, 20)
-		label.TextXAlignment = Enum.TextXAlignment.Center
-		label.TextTransparency = 1
-		label.Parent = container
+	local creditInfo = Instance.new("TextLabel")
+	creditInfo.Text = "👤 Made by: SinnyTime"
+	creditInfo.Font = theme.Font
+	creditInfo.TextSize = 14
+	creditInfo.TextColor3 = theme.TextColor
+	creditInfo.BackgroundTransparency = 1
+	creditInfo.Size = UDim2.new(0, 400, 0, 20)
+	creditInfo.TextXAlignment = Enum.TextXAlignment.Center
+	creditInfo.TextTransparency = 1
+	creditInfo.Parent = container
 
-		TweenService:Create(label, TweenInfo.new(0.4, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
-			TextTransparency = 0
-		}):Play()
-	end
+	-- 📜 Changelog container
+	local changelogTitle = Instance.new("TextLabel")
+	changelogTitle.Text = "📜 Recent Changes"
+	changelogTitle.Font = theme.Font
+	changelogTitle.TextSize = 18
+	changelogTitle.TextColor3 = theme.AccentColor
+	changelogTitle.BackgroundTransparency = 1
+	changelogTitle.Size = UDim2.new(0, 400, 0, 24)
+	changelogTitle.TextXAlignment = Enum.TextXAlignment.Center
+	changelogTitle.TextTransparency = 1
+	changelogTitle.Parent = container
 
-	-- ✨ Animate Fade In
-	local elements = { title, subtitle, description }
+	local changelogBox = Instance.new("TextLabel")
+	changelogBox.Text = "Loading changelog..."
+	changelogBox.Font = theme.Font
+	changelogBox.TextSize = 14
+	changelogBox.TextColor3 = theme.TextColor
+	changelogBox.BackgroundTransparency = 1
+	changelogBox.TextWrapped = true
+	changelogBox.TextYAlignment = Enum.TextYAlignment.Top
+	changelogBox.TextXAlignment = Enum.TextXAlignment.Center
+	changelogBox.Size = UDim2.new(0, 460, 0, 100)
+	changelogBox.TextTransparency = 1
+	changelogBox.Parent = container
 
-	for i, el in ipairs(elements) do
+	-- ✨ Fade in sequence
+	local fadeGroup = { title, subtitle, desc, versionInfo, creditInfo, changelogTitle, changelogBox }
+	for i, obj in ipairs(fadeGroup) do
 		task.delay(i * 0.05, function()
-			TweenService:Create(el, TweenInfo.new(0.4, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
-				TextTransparency = 0
-			}):Play()
+			TweenService:Create(obj, TweenInfo.new(0.3), { TextTransparency = 0 }):Play()
 		end)
 	end
+
+	-- 🌐 Fetch version
+	task.spawn(function()
+		local success, version = pcall(function()
+			return game:HttpGet("https://raw.githubusercontent.com/SinnyTime/GaGv2/main/VERSION.txt")
+		end)
+
+		if success and version then
+			version = string.match(version, "[%d%.]+") or "Unknown"
+			subtitle.Text = "Welcome to Bloom v" .. version
+			versionInfo.Text = "🛠️ Script Version: " .. version
+		else
+			subtitle.Text = "Failed to load version"
+			versionInfo.Text = "🛠️ Script Version: Unknown"
+		end
+	end)
+
+	-- 🌐 Fetch changelog
+	task.spawn(function()
+		local success, log = pcall(function()
+			return game:HttpGet("https://raw.githubusercontent.com/SinnyTime/GaGv2/main/CHANGELOG.txt")
+		end)
+
+		if success and log then
+			local entries = log:split("\n")
+			local recent = {}
+			for i = 1, math.min(5, #entries) do
+				table.insert(recent, "• " .. entries[i])
+			end
+			changelogBox.Text = table.concat(recent, "\n")
+		else
+			changelogBox.Text = "Unable to load changelog."
+		end
+	end)
 end
