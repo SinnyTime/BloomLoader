@@ -41,7 +41,7 @@ return function(Theme)
 	Shadow.ZIndex = -1
 	Shadow.Parent = MainFrame
 
-	local Topbar = Instance.new("Frame")
+		local Topbar = Instance.new("Frame")
 	Topbar.Name = "Topbar"
 	Topbar.Size = UDim2.new(1, 0, 0, 40)
 	Topbar.BackgroundColor3 = Theme.SectionColor
@@ -187,7 +187,7 @@ return function(Theme)
 
 	makeDraggable(MainFrame, TopbarButton)
 
-	-- Startup Animation
+		-- Startup Animation
 	MainFrame.Visible = true
 	MainFrame.Size = UDim2.new(0, 100, 0, 50)
 	MainFrame.Position = UDim2.new(0.5, 0, 0.5, 0)
@@ -202,7 +202,9 @@ return function(Theme)
 		if btn == currentBtn then return end
 		if currentTab then
 			TweenService:Create(currentTab, TweenInfo.new(0.2), { BackgroundTransparency = 1 }):Play()
-			task.delay(0.2, function() currentTab:Destroy() end)
+			task.delay(0.2, function()
+				if currentTab then currentTab:Destroy() end
+			end)
 		end
 
 		local success, tab = pcall(function()
@@ -258,69 +260,67 @@ return function(Theme)
 	end
 
 	task.delay(0.35, function()
-	for _, child in ipairs(TabBar:GetChildren()) do
-		if child:IsA("TextButton") and child.Text == "Home" then
-			switchTab("UI/Tabs/Home/HomeTab", child)
-			break
+		for _, child in ipairs(TabBar:GetChildren()) do
+			if child:IsA("TextButton") and child.Text == "Home" then
+				switchTab("UI/Tabs/Home/HomeTab", child)
+				break
+			end
 		end
-	end
-end)
-
--- 🔽 Place update check block HERE
--- Update check loop
-local function checkForUpdates()
-	local success, result = pcall(function()
-		return game:HttpGet("https://raw.githubusercontent.com/SinnyTime/GaGv2/main/VERSION.txt")
 	end)
 
-	if success and result then
-	local latest = string.match(result, "[%d%.]+")
-	if latest then
-		Title.Text = "🌱 Bloom | Version: " .. latest .. " | Bloom Management Portal"
-			UpdateLabel.Text = "⚠️ v" .. latest .. " update"
-			UpdateLabel.TextColor3 = Color3.fromRGB(255, 100, 100)
-			UpdateLabel.TextXAlignment = Enum.TextXAlignment.Center
-			UpdateLabel.TextScaled = true
-			UpdateLabel.Font = Theme.Font
-			UpdateLabel.TextWrapped = true
-			UpdateLabel.TextSize = 10
-			UpdateLabel.TextStrokeTransparency = 0.5
-			UpdateLabel.TextTransparency = 0
+	-- Update Check System
+	local function checkForUpdates()
+		local success, result = pcall(function()
+			return game:HttpGet("https://raw.githubusercontent.com/SinnyTime/GaGv2/main/VERSION.txt")
+		end)
 
-			local reloadClick = Instance.new("TextButton")
-			reloadClick.BackgroundTransparency = 1
-			reloadClick.Size = UpdateLabel.Size
-			reloadClick.Position = UpdateLabel.Position
-			reloadClick.Text = ""
-			reloadClick.Parent = Topbar
+		if success and result then
+			local latest = string.match(result, "[%d%.]+")
+			if latest then
+				Title.Text = "🌱 Bloom | Version: " .. latest .. " | Bloom Management Portal"
 
-			reloadClick.MouseButton1Click:Connect(function()
-				ScreenGui:Destroy()
-				loadstring(game:HttpGet("https://raw.githubusercontent.com/SinnyTime/GaGv2/main/Main.lua"))()
-			end)
+				UpdateLabel.Text = "⚠️ v" .. latest .. " update"
+				UpdateLabel.TextColor3 = Color3.fromRGB(255, 100, 100)
+				UpdateLabel.TextXAlignment = Enum.TextXAlignment.Center
+				UpdateLabel.TextScaled = true
+				UpdateLabel.Font = Theme.Font
+				UpdateLabel.TextWrapped = true
+				UpdateLabel.TextSize = 10
+				UpdateLabel.TextStrokeTransparency = 0.5
+				UpdateLabel.TextTransparency = 0
+
+				local reloadClick = Instance.new("TextButton")
+				reloadClick.BackgroundTransparency = 1
+				reloadClick.Size = UpdateLabel.Size
+				reloadClick.Position = UpdateLabel.Position
+				reloadClick.Text = ""
+				reloadClick.Parent = Topbar
+
+				reloadClick.MouseButton1Click:Connect(function()
+					ScreenGui:Destroy()
+					loadstring(game:HttpGet("https://raw.githubusercontent.com/SinnyTime/GaGv2/main/Main.lua"))()
+				end)
+			else
+				UpdateLabel.Text = "✅ Bloom is up to date!"
+			end
 		else
-			UpdateLabel.Text = "✅ Bloom is up to date!"
+			UpdateLabel.Text = "⚠️ Failed to check updates"
 		end
-	else
-		UpdateLabel.Text = "⚠️ Error reading version"
 	end
-else
-	UpdateLabel.Text = "⚠️ Failed to check updates"
+
+	task.spawn(function()
+		while true do
+			checkForUpdates()
+			task.wait(30)
+		end
+	end)
+
+	-- Return UI structure
+	return {
+		GUI = ScreenGui,
+		MainFrame = MainFrame,
+		Topbar = Topbar,
+		TabBar = TabBar,
+		ContentArea = ContentArea,
+	}
 end
-
-
-task.spawn(function()
-	while true do
-		checkForUpdates()
-		task.wait(30)
-	end
-end)
-
--- 🔽 Then your return block
-return {
-	GUI = ScreenGui,
-	MainFrame = MainFrame,
-	Topbar = Topbar,
-	TabBar = TabBar,
-	ContentArea = ContentArea,
-}
