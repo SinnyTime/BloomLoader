@@ -38,7 +38,7 @@ return function(Theme)
 	Shadow.ZIndex = -1
 	Shadow.Parent = MainFrame
 
-	local Topbar = Instance.new("Frame")
+		local Topbar = Instance.new("Frame")
 	Topbar.Name = "Topbar"
 	Topbar.Size = UDim2.new(1, 0, 0, 40)
 	Topbar.BackgroundColor3 = Theme.SectionColor
@@ -54,7 +54,7 @@ return function(Theme)
 	Title.TextSize = 16
 	Title.TextColor3 = Theme.TextColor
 	Title.TextXAlignment = Enum.TextXAlignment.Left
-	Title.Text = "🌱 Bloom | Version: 2.0.02 | Bloom Management Portal"
+	Title.Text = "🌱 Bloom | Version: (Checking...) | Bloom Management Portal"
 	Title.Parent = Topbar
 
 	local CloseBtn = Instance.new("TextButton")
@@ -79,7 +79,19 @@ return function(Theme)
 	MinBtn.Parent = Topbar
 	Instance.new("UICorner", MinBtn).CornerRadius = Theme.CornerRadius
 
-	local MinimizedFrame = Instance.new("TextButton")
+	local UpdateLabel = Instance.new("TextLabel")
+	UpdateLabel.Name = "UpdateLabel"
+	UpdateLabel.Size = UDim2.new(0, 200, 1, 0)
+	UpdateLabel.Position = UDim2.new(0, 260, 0, 0)
+	UpdateLabel.BackgroundTransparency = 1
+	UpdateLabel.TextColor3 = Color3.fromRGB(255, 200, 50)
+	UpdateLabel.TextSize = 14
+	UpdateLabel.Font = Theme.Font
+	UpdateLabel.TextXAlignment = Enum.TextXAlignment.Left
+	UpdateLabel.Text = ""
+	UpdateLabel.Parent = Topbar
+
+		local MinimizedFrame = Instance.new("TextButton")
 	MinimizedFrame.Text = "🌱 Bloom"
 	MinimizedFrame.Size = UDim2.new(0, 180, 0, 40)
 	MinimizedFrame.Position = UDim2.new(0.5, -90, 0.5, -20)
@@ -101,10 +113,10 @@ return function(Theme)
 	DragHandle.Text = ""
 	DragHandle.AutoButtonColor = false
 	DragHandle.ZIndex = 3
-	DragHandle.Parent = MainFrame -- ❗ now part of MainFrame
+	DragHandle.Parent = MainFrame
 	Instance.new("UICorner", DragHandle).CornerRadius = UDim.new(1, 0)
-	
-	-- Animate on hover
+
+	-- Drag hover effect
 	DragHandle.MouseEnter:Connect(function()
 		TweenService:Create(DragHandle, TweenInfo.new(0.15), {
 			Size = UDim2.new(0, 120, 0, 7),
@@ -125,9 +137,8 @@ return function(Theme)
 			DragHandle.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
 		end
 	end)
-	
+
 	local function makeDraggable(targetFrame, handle)
-		if not targetFrame or not handle then return end
 		local dragging = false
 		local dragStart, startPos
 
@@ -158,27 +169,37 @@ return function(Theme)
 	makeDraggable(MainFrame, Topbar)
 	makeDraggable(MainFrame, DragHandle)
 
-	CloseBtn.MouseButton1Click:Connect(function()
-		MainFrame.Visible = false
-		DragHandle.Visible = false
-		ScreenGui:Destroy()
+	-- Update check loop
+	local function updateVersionLabel(version)
+		Title.Text = "🌱 Bloom | Version: " .. version .. " | Bloom Management Portal"
+	end
+
+	local function checkForUpdates()
+		local success, result = pcall(function()
+			return game:HttpGet("https://raw.githubusercontent.com/SinnyTime/GaGv2/main/VERSION.txt")
+		end)
+
+		if success and result then
+			local latest = string.match(result, "[%d%.]+")
+			if latest then
+				updateVersionLabel(latest)
+				if latest ~= "2.0.02" then
+					UpdateLabel.Text = "⚠️ Update " .. latest .. " available"
+				else
+					UpdateLabel.Text = ""
+				end
+			end
+		end
+	end
+
+	task.spawn(function()
+		while true do
+			checkForUpdates()
+			task.wait(30)
+		end
 	end)
 
-	MinBtn.MouseButton1Click:Connect(function()
-		MinimizedFrame.Position = MainFrame.Position + UDim2.new(0, 0, 0, 240)
-		MainFrame.Visible = false
-		DragHandle.Visible = false
-		MinimizedFrame.Visible = true
-	end)
-
-	MinimizedFrame.MouseButton1Click:Connect(function()
-		MainFrame.Position = MinimizedFrame.Position - UDim2.new(0, 0, 0, 240)
-		MainFrame.Visible = true
-		DragHandle.Visible = true
-		MinimizedFrame.Visible = false
-	end)
-
-	local TabBar = Instance.new("Frame")
+		local TabBar = Instance.new("Frame")
 	TabBar.Name = "TabBar"
 	TabBar.Size = UDim2.new(0, 130, 1, -40)
 	TabBar.Position = UDim2.new(0, 0, 0, 40)
@@ -277,39 +298,6 @@ return function(Theme)
 	}):Play()
 
 	DragHandle.Position = UDim2.new(0.5, -50, 0, MainFrame.AbsolutePosition.Y + MainFrame.AbsoluteSize.Y + 6)
-	-- 🌐 Version Update Checker
-	local CURRENT_VERSION = "2.0.02"
-	local UpdateLabel = Instance.new("TextLabel")
-	UpdateLabel.Size = UDim2.new(0, 120, 0, 24)
-	UpdateLabel.Position = UDim2.new(0, 230, 0, 8)
-	UpdateLabel.BackgroundTransparency = 1
-	UpdateLabel.TextColor3 = Color3.fromRGB(255, 200, 50)
-	UpdateLabel.TextSize = 14
-	UpdateLabel.Font = Theme.Font
-	UpdateLabel.TextXAlignment = Enum.TextXAlignment.Left
-	UpdateLabel.Text = ""
-	UpdateLabel.Parent = Topbar
-
-	local function checkForUpdates()
-		local success, result = pcall(function()
-			return game:HttpGet("https://raw.githubusercontent.com/SinnyTime/GaGv2/main/VERSION.txt")
-		end)
-
-		if success and result then
-			local latest = string.match(result, "[%d%.]+")
-			if latest and latest ~= CURRENT_VERSION then
-				UpdateLabel.Text = "⚠️ Update " .. latest .. " available"
-			else
-				UpdateLabel.Text = ""
-			end
-		end
-	end
-
-	checkForUpdates()
-	while true do
-		task.wait(30) -- check every 30 seconds
-		checkForUpdates()
-	end
 
 	return {
 		GUI = ScreenGui,
