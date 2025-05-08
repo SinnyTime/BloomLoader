@@ -1,5 +1,6 @@
-[2.0.2] - 2025-05-08
-✨ Added animated white drag handle and smooth minimize transition
-🌐 Version auto-updates
-📜 Changelog now appears directly in HomeTab
-🎨 Improved UI gaps and corners for a cleaner appearance
+[2.0.5] - 2025-05-08
+✨ Added animated white drag handle with smooth hover effects
+📉 Implemented seamless minimize/maximize transition (with icon toggle)
+🌐 Automatic version check with live update display
+📜 Changelog now visible directly in the Home tab
+🎨 Refined UI spacing, padding, and corner rounding for a cleaner look
