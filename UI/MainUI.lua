@@ -103,8 +103,8 @@ return function(Theme)
 	Instance.new("UICorner", DragHandle).CornerRadius = UDim.new(1, 0)
 
 	local function makeDraggable(targetFrame, handle)
-		local dragging, dragStart, startPos
-	
+	if not targetFrame or not handle then return end
+		local dragging, dragStart, startPos	
 		handle.InputBegan:Connect(function(input)
 			if input.UserInputType == Enum.UserInputType.MouseButton1 then
 				dragging = true
@@ -117,7 +117,6 @@ return function(Theme)
 				end)
 			end
 		end)
-	
 		UserInputService.InputChanged:Connect(function(input)
 			if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
 				local delta = input.Position - dragStart
@@ -126,9 +125,9 @@ return function(Theme)
 			end
 		end)
 	end
+	
 	makeDraggable(MainFrame, Topbar)
 	makeDraggable(MainFrame, DragHandle)
-	makeDraggable(MinimizedFrame)
 
 	CloseBtn.MouseButton1Click:Connect(function()
 		MainFrame.Visible = false
