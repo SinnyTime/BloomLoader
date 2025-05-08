@@ -4,19 +4,15 @@ local function import(name)
 	local src = game:HttpGet(BASE_URL .. name .. ".lua")
 	local module = loadstring(src)
 	assert(module, "Failed to load module: " .. name)
-	return module()
+	return module
 end
 
--- Load Theme + MainUI (these exist)
-local Theme = import("UI/Styles/Theme")
-local MainUI = import("UI/MainUI")
+-- Load Theme and pass it into MainUI
+local Theme = import("UI/Styles/Theme")()
+local MainUI = import("UI/MainUI")(Theme)
 
--- 🚫 Tabs not yet created, so we comment these out
+-- Tabs not yet ready
 -- local AutoBuyTab = import("Tabs/AutoBuy/AutoBuyTab")
--- local AutoCollectTab = import("Tabs/AutoCollect/AutoCollectTab")
-
--- 🚫 Don't call missing tabs
 -- AutoBuyTab(MainUI.ContentArea)
--- AutoCollectTab(MainUI.ContentArea)
 
 return true
