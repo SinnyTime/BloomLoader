@@ -7,18 +7,16 @@ local function import(name)
 	return module()
 end
 
--- Load Theme + MainUI
+-- Load Theme + MainUI (these exist)
 local Theme = import("UI/Styles/Theme")
 local MainUI = import("UI/MainUI")
 
--- Load Tabs
-local AutoBuyTab = import("Tabs/AutoBuy/AutoBuyTab")
-local AutoCollectTab = import("Tabs/AutoCollect/AutoCollectTab")
--- Add more tabs here...
+-- 🚫 Tabs not yet created, so we comment these out
+-- local AutoBuyTab = import("Tabs/AutoBuy/AutoBuyTab")
+-- local AutoCollectTab = import("Tabs/AutoCollect/AutoCollectTab")
 
--- Inject Tabs into UI
-AutoBuyTab(MainUI.ContentArea)
-AutoCollectTab(MainUI.ContentArea)
--- Later we’ll add tab switching buttons too
+-- 🚫 Don't call missing tabs
+-- AutoBuyTab(MainUI.ContentArea)
+-- AutoCollectTab(MainUI.ContentArea)
 
 return true
