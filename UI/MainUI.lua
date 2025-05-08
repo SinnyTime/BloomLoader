@@ -292,7 +292,7 @@ return function(Theme)
 			else
 				UpdateLabel.Text = "⚠️ v" .. latest .. " update"
 				UpdateLabel.TextColor3 = Color3.fromRGB(255, 100, 100)
-				UpdateLabel.TextSize = 12
+				UpdateLabel.TextSize = 14
 				UpdateLabel.TextScaled = false
 
 				local reloadClick = Instance.new("TextButton")
