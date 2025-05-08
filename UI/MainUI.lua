@@ -5,7 +5,6 @@ return function(Theme)
 
 	local safeParent = gethui and gethui() or game:GetService("CoreGui") or LocalPlayer:WaitForChild("PlayerGui")
 
-	-- GUI Container
 	local ScreenGui = Instance.new("ScreenGui")
 	ScreenGui.Name = "BloomUI"
 	ScreenGui.ResetOnSpawn = false
@@ -13,7 +12,6 @@ return function(Theme)
 	ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 	ScreenGui.Parent = safeParent
 
-	-- Main Window
 	local MainFrame = Instance.new("Frame")
 	MainFrame.Name = "MainFrame"
 	MainFrame.Size = UDim2.new(0, 620, 0, 480)
@@ -21,10 +19,22 @@ return function(Theme)
 	MainFrame.BackgroundColor3 = Theme.BackgroundColor
 	MainFrame.BorderSizePixel = 0
 	MainFrame.AnchorPoint = Vector2.new(0.5, 0.5)
+	MainFrame.Visible = false
 	MainFrame.Parent = ScreenGui
 	Instance.new("UICorner", MainFrame).CornerRadius = Theme.CornerRadius
 
-	-- Topbar
+	task.delay(0.05, function()
+		MainFrame.Visible = true
+		MainFrame.BackgroundTransparency = 1
+		MainFrame.Size = UDim2.new(0, 100, 0, 50)
+		MainFrame.Position = UDim2.new(0.5, -50, 0.5, -25)
+		TweenService:Create(MainFrame, TweenInfo.new(0.35, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+			Size = UDim2.new(0, 620, 0, 480),
+			Position = UDim2.new(0.5, -310, 0.5, -240),
+			BackgroundTransparency = 0
+		}):Play()
+	end)
+
 	local Topbar = Instance.new("Frame")
 	Topbar.Name = "Topbar"
 	Topbar.Size = UDim2.new(1, 0, 0, 40)
@@ -35,7 +45,7 @@ return function(Theme)
 
 	local Title = Instance.new("TextLabel")
 	Title.Name = "Title"
-	Title.Size = UDim2.new(1, -20, 1, 0)
+	Title.Size = UDim2.new(1, -80, 1, 0)
 	Title.Position = UDim2.new(0, 10, 0, 0)
 	Title.BackgroundTransparency = 1
 	Title.Font = Theme.Font
@@ -45,7 +55,58 @@ return function(Theme)
 	Title.Text = "🌱 Bloom | Version: 2.0.0 | Bloom Management Portal"
 	Title.Parent = Topbar
 
-	-- Sidebar
+	local CloseBtn = Instance.new("TextButton")
+	CloseBtn.Size = UDim2.new(0, 24, 0, 24)
+	CloseBtn.Position = UDim2.new(1, -30, 0, 8)
+	CloseBtn.BackgroundColor3 = Color3.fromRGB(180, 50, 50)
+	CloseBtn.Text = "✕"
+	CloseBtn.TextColor3 = Color3.new(1, 1, 1)
+	CloseBtn.Font = Theme.Font
+	CloseBtn.TextSize = 14
+	CloseBtn.Parent = Topbar
+	Instance.new("UICorner", CloseBtn).CornerRadius = Theme.CornerRadius
+
+	local MinBtn = Instance.new("TextButton")
+	MinBtn.Size = UDim2.new(0, 24, 0, 24)
+	MinBtn.Position = UDim2.new(1, -60, 0, 8)
+	MinBtn.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+	MinBtn.Text = "-"
+	MinBtn.TextColor3 = Color3.new(1, 1, 1)
+	MinBtn.Font = Theme.Font
+	MinBtn.TextSize = 16
+	MinBtn.Parent = Topbar
+	Instance.new("UICorner", MinBtn).CornerRadius = Theme.CornerRadius
+
+	local MinimizedFrame = Instance.new("TextButton")
+	MinimizedFrame.Text = "🌱 Bloom"
+	MinimizedFrame.Size = UDim2.new(0, 140, 0, 30)
+	MinimizedFrame.Position = UDim2.new(0, 20, 1, -40)
+	MinimizedFrame.AnchorPoint = Vector2.new(0, 1)
+	MinimizedFrame.BackgroundColor3 = Theme.SectionColor
+	MinimizedFrame.TextColor3 = Theme.TextColor
+	MinimizedFrame.Font = Theme.Font
+	MinimizedFrame.TextSize = 14
+	MinimizedFrame.Visible = false
+	MinimizedFrame.Parent = ScreenGui
+	Instance.new("UICorner", MinimizedFrame).CornerRadius = Theme.CornerRadius
+
+	CloseBtn.MouseButton1Click:Connect(function()
+		TweenService:Create(MainFrame, TweenInfo.new(0.25), { BackgroundTransparency = 1 }):Play()
+		MainFrame:TweenSize(UDim2.new(0, 0, 0, 0), Enum.EasingDirection.In, Enum.EasingStyle.Quad, 0.25, true, function()
+			ScreenGui:Destroy()
+		end)
+	end)
+
+	MinBtn.MouseButton1Click:Connect(function()
+		MainFrame.Visible = false
+		MinimizedFrame.Visible = true
+	end)
+
+	MinimizedFrame.MouseButton1Click:Connect(function()
+		MainFrame.Visible = true
+		MinimizedFrame.Visible = false
+	end)
+
 	local TabBar = Instance.new("Frame")
 	TabBar.Name = "TabBar"
 	TabBar.Size = UDim2.new(0, 130, 1, -40)
@@ -62,7 +123,6 @@ return function(Theme)
 	TabLayout.VerticalAlignment = Enum.VerticalAlignment.Top
 	TabLayout.Parent = TabBar
 
-	-- Content Area
 	local ContentArea = Instance.new("Frame")
 	ContentArea.Name = "ContentArea"
 	ContentArea.Size = UDim2.new(1, -130, 1, -40)
@@ -72,17 +132,13 @@ return function(Theme)
 	ContentArea.Parent = MainFrame
 	Instance.new("UICorner", ContentArea).CornerRadius = Theme.CornerRadius
 
-	-- 🧠 Tab loader cache
 	local CurrentTab = nil
-
-	-- 📚 Tab config
 	local tabs = {
 		{ name = "Home", module = "Tabs/Home/HomeTab" },
 		{ name = "AutoBuy", module = "Tabs/AutoBuy/AutoBuyTab" },
 		{ name = "AutoCollect", module = "Tabs/AutoCollect/AutoCollectTab" },
 	}
 
-	-- 🔄 Function: Switch Tab
 	local function switchTab(tabModule)
 		if CurrentTab then
 			TweenService:Create(CurrentTab, TweenInfo.new(0.2), { BackgroundTransparency = 1 }):Play()
@@ -108,7 +164,6 @@ return function(Theme)
 		end
 	end
 
-	-- ➕ Build Tab Buttons
 	for _, tabInfo in ipairs(tabs) do
 		local btn = Instance.new("TextButton")
 		btn.Size = UDim2.new(1, -20, 0, 36)
@@ -137,7 +192,6 @@ return function(Theme)
 		end)
 	end
 
-	-- 🏠 Load Home by default
 	switchTab("Tabs/Home/HomeTab")
 
 	return {
