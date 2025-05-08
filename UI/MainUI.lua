@@ -233,7 +233,21 @@ return function(Theme)
 		end)
 	end
 
-	task.delay(0.35, function() switchTab("UI/Tabs/Home/HomeTab") end)
+	task.delay(0.35, function()
+		switchTab("UI/Tabs/Home/HomeTab")
+	end)
+
+	-- 💫 UI reveal animation
+	MainFrame.Visible = true
+	MainFrame.BackgroundTransparency = 1
+	MainFrame.Size = UDim2.new(0, 100, 0, 50)
+	MainFrame.Position = UDim2.new(0.5, -50, 0.5, -25)
+
+	TweenService:Create(MainFrame, TweenInfo.new(0.35, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+		Size = UDim2.new(0, 620, 0, 480),
+		Position = UDim2.new(0.5, -310, 0.5, -240),
+		BackgroundTransparency = 0
+	}):Play()
 
 	return {
 		GUI = ScreenGui,
