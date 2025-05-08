@@ -1,4 +1,4 @@
-[2.0.3] - 2025-05-08
+[2.0.2] - 2025-05-08
 
 - The update alert is now clickable to reload the UI automatically
 - Bloom UI now reinstalls itself instantly when updates are applied
