@@ -1,4 +1,4 @@
--- Main.lua (clean, tested injection)
+-- Main.lua
 local BASE_URL = "https://raw.githubusercontent.com/SinnyTime/GaGv2/main/"
 
 local function import(path)
@@ -8,22 +8,24 @@ local function import(path)
 	return func()
 end
 
--- Load Theme + UI Builder
+-- 🧠 Load theme and files
 local Theme = import("UI/Styles/Theme")
 local MainUI = import("UI/MainUI")
+local Loader = import("UI/Loader")
 
--- 👇 THIS LINE BUILDS THE UI ON INJECTION
-local ui = MainUI(Theme)
+-- 🌱 Start loader
+Loader(function()
+	local ui = MainUI(Theme)
 
--- Optional: Show console confirmation
-print("🌱 Bloom UI built")
+	-- 🎮 UI toggle with LeftControl
+	local UIS = game:GetService("UserInputService")
+	UIS.InputBegan:Connect(function(input, gpe)
+		if not gpe and input.KeyCode == Enum.KeyCode.LeftControl then
+			ui.GUI.Enabled = not ui.GUI.Enabled
+		end
+	end)
 
--- Optional toggle with LeftControl
-local UIS = game:GetService("UserInputService")
-UIS.InputBegan:Connect(function(input, gpe)
-	if not gpe and input.KeyCode == Enum.KeyCode.LeftControl then
-		ui.GUI.Enabled = not ui.GUI.Enabled
-	end
+	print("🌱 Bloom UI built")
 end)
 
 return true
