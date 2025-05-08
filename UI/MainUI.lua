@@ -103,7 +103,6 @@ return function(Theme)
 	DragHandle.Parent = ScreenGui
 	Instance.new("UICorner", DragHandle).CornerRadius = UDim.new(1, 0)
 
-	-- 💫 Dragging only from top or bottom
 	local function makeDraggable(targetFrame, handle)
 		if not targetFrame or not handle then return end
 		local dragging = false
@@ -136,7 +135,6 @@ return function(Theme)
 	makeDraggable(MainFrame, Topbar)
 	makeDraggable(MainFrame, DragHandle)
 
-	-- 🔘 Button Logic
 	CloseBtn.MouseButton1Click:Connect(function()
 		MainFrame.Visible = false
 		DragHandle.Visible = false
@@ -157,7 +155,6 @@ return function(Theme)
 		MinimizedFrame.Visible = false
 	end)
 
-	-- 📁 Tab Loader Setup
 	local TabBar = Instance.new("Frame")
 	TabBar.Name = "TabBar"
 	TabBar.Size = UDim2.new(0, 130, 1, -40)
@@ -243,12 +240,10 @@ return function(Theme)
 		end)
 	end
 
-	-- Load default tab
 	task.delay(0.35, function()
 		switchTab("UI/Tabs/Home/HomeTab")
 	end)
 
-	-- Animate in
 	MainFrame.Visible = true
 	MainFrame.BackgroundTransparency = 1
 	MainFrame.Size = UDim2.new(0, 100, 0, 50)
@@ -260,7 +255,6 @@ return function(Theme)
 		BackgroundTransparency = 0
 	}):Play()
 
-	-- Sync white bar on first frame
 	DragHandle.Position = UDim2.new(0.5, -50, 0, MainFrame.AbsolutePosition.Y + MainFrame.AbsoluteSize.Y + 6)
 
 	return {
